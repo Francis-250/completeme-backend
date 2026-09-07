@@ -1,0 +1,60 @@
+model Coupon {
+  id             String        @id @default(uuid())
+  code           String        @unique
+  discountType   DiscountType
+  discountValue  Decimal       @db.Decimal(12, 2)
+  minOrderAmount Decimal?      @db.Decimal(12, 2)
+  maxDiscount    Decimal?      @db.Decimal(12, 2)
+  usageLimit     Int?
+  usedCount      Int           @default(0)
+  startDate      DateTime
+  endDate        DateTime
+  isActive       Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  orders         Order[]
+  usages         CouponUsage[]
+}
+
+model CouponUsage {
+  id        String   @id @default(uuid())
+  couponId  String
+  coupon    Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId   String   @unique
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  usedAt    DateTime @default(now())
+}
+
+model Order {
+  id                String       @id @default(uuid())
+  userId            String?
+  user              User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  couponId          String?
+  coupon            Coupon?      @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  totalAmount       Decimal      @db.Decimal(12, 2)
+  taxAmount         Decimal      @default(0.00) @db.Decimal(12, 2)
+  shippingAmount    Decimal      @default(0.00) @db.Decimal(12, 2)
+  discountAmount    Decimal      @default(0.00) @db.Decimal(12, 2)
+  status            OrderStatus  @default(PENDING)
+  shippingAddressId String?
+  shippingAddress   UserAddress? @relation(fields: [shippingAddressId], references: [id], onDelete: SetNull)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  orderItems        OrderItem[]
+  payments          Payment[]
+  shipments         Shipment[]
+  couponUsage       CouponUsage?
+}
+
+model OrderItem {
+  id              String          @id @default(uuid())
+  orderId         String
+  order           Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId       String?
+  variant         ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  quantity        Int
+  priceAtPurchase Decimal         @db.Decimal(12, 2)
+  createdAt       DateTime        @default(now())
+}

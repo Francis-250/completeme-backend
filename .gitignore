@@ -4,3 +4,10 @@ dist/
 .env
 
 /generated/prisma
+
+/src/generated/prisma
+
+.agents/
+.claude/
+
+skills-lock.json
