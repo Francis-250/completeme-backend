@@ -1,22 +1,26 @@
-import "dotenv/config";
 import express from "express";
-import cors from "cors";
 import cookieParser from "cookie-parser";
+import { corsMiddleware } from "./config/cors";
+import router from "./routes";
+import { errorMiddleware } from "./middlewares/error.middleware";
 
 const app = express();
-const port = process.env.PORT;
 
-app.use(
-  cors({
-    origin: process.env.ALLOWED_ORIGINS?.split(",") ?? false,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-  }),
-);
-
-app.use(express.json());
+app.use(corsMiddleware);
 app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.listen(port, () => {
-  console.log(`https://localhost:${port}`);
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok" });
 });
+
+app.use("/api", router);
+
+app.use((_req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+app.use(errorMiddleware);
+
+export default app;

@@ -1,7 +1,7 @@
 model User {
   id                 String              @id @default(uuid())
   email              String              @unique
-  passwordHash       String
+  password       String
   firstName          String
   lastName           String
   phone              String?
