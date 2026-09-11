@@ -13,7 +13,10 @@ export const requireAuth = async (
     });
 
     if (!session) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
     }
 
     req.user = session.user;
@@ -22,38 +25,34 @@ export const requireAuth = async (
     next();
   } catch (error) {
     console.error("Authentication error:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
 };
 
-export const requireRole = (role: string | string[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const session = await auth.api.getSession({
-        headers: fromNodeHeaders(req.headers),
+export const requireRole = (roles: string | string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const allowedRoles = Array.isArray(roles) ? roles : [roles];
+
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
       });
-
-      if (!session) {
-        return res.status(401).json({ error: "Unauthorized" });
-      }
-
-      req.user = session.user;
-      req.session = session.session;
-
-      const userRole = session.user.role;
-      const allowedRoles = Array.isArray(role) ? role : [role];
-
-      if (!userRole || !allowedRoles.includes(userRole)) {
-        return res.status(403).json({
-          error: "Forbidden",
-          message: `Required role: ${allowedRoles.join(" or ")}`,
-        });
-      }
-
-      next();
-    } catch (error) {
-      console.error("Authorization error:", error);
-      return res.status(500).json({ error: "Internal Server Error" });
     }
+
+    const userRole = req.user.role;
+
+    if (!userRole || !allowedRoles.includes(userRole)) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden",
+      });
+    }
+
+    next();
   };
 };

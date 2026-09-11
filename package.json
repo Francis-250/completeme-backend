@@ -22,8 +22,10 @@
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "better-auth": "^1.6.19",
+    "cloudinary": "^2.11.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "multer": "^2.3.0",
     "pg": "^8.21.0",
     "swagger-ui-express": "^5.0.1",
     "zod": "^4.4.3"
@@ -31,6 +33,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/multer": "^2.2.0",
     "@types/node": "^25.9.3",
     "@types/pg": "^8.20.0",
     "@types/swagger-ui-express": "^4.1.8",
