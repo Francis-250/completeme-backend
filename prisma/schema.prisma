@@ -1,0 +1,28 @@
+// Main Prisma schema - imports all schema files
+// This file is required for Prisma to properly merge multi-file schemas
+
+// Enums and base configuration
+// datasource and generator are defined in base.prisma
+// but we need to ensure they're only defined once
+
+// Models
+// User and authentication models
+// (defined in auth.prisma)
+
+// User-related models
+// (defined in user.prisma)
+
+// Catalog models
+// (defined in catalog.prisma)
+
+// Cart and wishlist models
+// (defined in cart.prisma)
+
+// Order models
+// (defined in order.prisma)
+
+// Payment models
+// (defined in payment.prisma)
+
+// Shipment and inventory models
+// (defined in shipment.prisma)

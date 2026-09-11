@@ -49,67 +49,9 @@ export const generateOpenAPISchema = async () => {
       {
         name: "Auth",
         description: "Authentication and account endpoints",
-      },
-      {
-        name: "Users",
-        description: "User management endpoints",
-      },
+      }
     ],
-    paths: {
-      ...authPaths,
-      "/api/users": {
-        get: {
-          tags: ["Users"],
-          summary: "Get all users",
-          description:
-            "Returns all users. Requires an authenticated admin user.",
-          security: [{ cookieAuth: [] }],
-          responses: {
-            "200": {
-              description: "Users fetched successfully",
-              content: {
-                "application/json": {
-                  schema: {
-                    type: "object",
-                    properties: {
-                      success: { type: "boolean", example: true },
-                      data: {
-                        type: "array",
-                        items: {
-                          type: "object",
-                          additionalProperties: true,
-                        },
-                      },
-                      count: { type: "number", example: 1 },
-                    },
-                  },
-                },
-              },
-            },
-            "401": {
-              description: "Unauthorized",
-            },
-            "403": {
-              description: "Forbidden. Admin role required.",
-            },
-            "500": {
-              description: "Error fetching users",
-            },
-          },
-        },
-      },
-    },
-    components: {
-      ...schema.components,
-      securitySchemes: {
-        ...schema.components?.securitySchemes,
-        cookieAuth: {
-          type: "apiKey",
-          in: "cookie",
-          name: "better-auth.session_token",
-        },
-      },
-    },
+    paths: authPaths,
   };
 };
 

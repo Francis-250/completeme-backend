@@ -43,7 +43,8 @@ export const auth = betterAuth({
     phoneNumber(),
     username(),
     admin({
-      defaultRole: "customer"
+      defaultRole: "CUSTOMER",
+      adminRoles: ["ADMIN"],
     }),
     lastLoginMethod(),
     emailOTP({
@@ -61,7 +62,7 @@ export const auth = betterAuth({
               otp,
               expiresInMinutes: 5,
             }),
-            subject: "Your sign-in code — StrokeCheck",
+            subject: "Your sign-in code — SHOP PULSE",
           });
         } else if (type === "email-verification") {
           await sendEmail({
@@ -71,7 +72,7 @@ export const auth = betterAuth({
               otp,
               expiresInMinutes: 5,
             }),
-            subject: "Verify your email — StrokeCheck",
+            subject: "Verify your email — SHOP PULSE",
           });
         } else if (type === "forget-password") {
           await sendEmail({
@@ -81,7 +82,7 @@ export const auth = betterAuth({
               otp,
               expiresInMinutes: 5,
             }),
-            subject: "Reset your password — StrokeCheck",
+            subject: "Reset your password — SHOP PULSE",
           });
         }
       },
