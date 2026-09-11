@@ -67,7 +67,7 @@ export const reviewService = {
     });
 
     // Update product average rating and review count
-    await this.updateProductRating(data.productId);
+    await reviewService.updateProductRating(data.productId);
 
     return review;
   },
@@ -186,7 +186,7 @@ export const reviewService = {
 
     // Update product average rating if rating changed
     if (data.rating !== undefined) {
-      await this.updateProductRating(existingReview.productId);
+      await reviewService.updateProductRating(existingReview.productId);
     }
 
     return review;
@@ -213,7 +213,7 @@ export const reviewService = {
     });
 
     // Update product average rating
-    await this.updateProductRating(productId);
+    await reviewService.updateProductRating(productId);
 
     return { success: true };
   },

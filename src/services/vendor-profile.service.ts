@@ -49,7 +49,7 @@ export const vendorProfileService = {
           select: { id: true, name: true, email: true, image: true },
         },
         products: {
-          include: { images: true, variants: { include: { images: true } } },
+          include: { images: true, variants: true },
         },
       },
     });
@@ -67,7 +67,7 @@ export const vendorProfileService = {
           select: { id: true, name: true, email: true, image: true },
         },
         products: {
-          include: { images: true, variants: { include: { images: true } } },
+          include: { images: true, variants: true },
         },
       },
       orderBy: { createdAt: "desc" },
@@ -85,7 +85,7 @@ export const vendorProfileService = {
         },
         products: {
           where: { isActive: true },
-          include: { images: true, variants: { include: { images: true } } },
+          include: { images: true, variants: true },
         },
       },
     });
@@ -101,7 +101,7 @@ export const vendorProfileService = {
           select: { id: true, name: true, email: true, image: true },
         },
         products: {
-          include: { images: true, variants: { include: { images: true } } },
+          include: { images: true, variants: true },
         },
       },
     });
@@ -117,7 +117,7 @@ export const vendorProfileService = {
           select: { id: true, name: true, email: true, image: true },
         },
         products: {
-          include: { images: true, variants: { include: { images: true } } },
+          include: { images: true, variants: true },
         },
       },
     });
@@ -176,7 +176,7 @@ export const vendorProfileService = {
           select: { id: true, name: true, email: true, image: true },
         },
         products: {
-          include: { images: true, variants: { include: { images: true } } },
+          include: { images: true, variants: true },
         },
       },
     });

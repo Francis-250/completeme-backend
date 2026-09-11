@@ -16,8 +16,8 @@ export const auditLogService = {
         action: data.action,
         entity: data.entity,
         entityId: data.entityId,
-        oldValues: data.oldValues,
-        newValues: data.newValues,
+        oldValues: data.oldValues ? (data.oldValues as any) : undefined,
+        newValues: data.newValues ? (data.newValues as any) : undefined,
         ipAddress: data.ipAddress,
       },
     });

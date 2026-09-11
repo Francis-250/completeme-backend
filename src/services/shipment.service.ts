@@ -50,7 +50,7 @@ export const shipmentService = {
     });
 
     // Update order status if shipped
-    if (data.status === "SHIPPED" || data.status === "IN_TRANSIT" || data.status === "OUT_FOR_DELIVERY") {
+    if (data.status === "IN_TRANSIT" || data.status === "OUT_FOR_DELIVERY") {
       await prisma.order.update({
         where: { id: data.orderId },
         data: { status: "SHIPPED" },

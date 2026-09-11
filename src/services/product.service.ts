@@ -92,24 +92,13 @@ export const productService = {
             compareAtPrice: variant.compareAtPrice,
             stockQuantity: variant.stockQuantity,
             weight: variant.weight,
-            attributes: variant.attributes,
-            images: variant.images && variant.images.length > 0
-              ? {
-                  create: variant.images.map((img, idx) => ({
-                    url: "", // Will be updated after upload
-                    sortOrder: idx,
-                    isPrimary: idx === 0,
-                  })),
-                }
-              : undefined,
+            attributes: (variant.attributes ?? {}) as any,
           })),
         },
       },
       include: {
         images: true,
-        variants: {
-          include: { images: true },
-        },
+        variants: true,
         category: true,
         brand: true,
         vendor: true,
@@ -117,20 +106,21 @@ export const productService = {
     });
 
     // Upload variant images
-    if (data.variants.some(v => v.images && v.images.length > 0)) {
-      for (let i = 0; i < data.variants.length; i++) {
-        const variant = data.variants[i];
-        const createdVariant = product.variants[i];
-
+    if (data.variants.some((v) => v.images && v.images.length > 0)) {
+      for (const variant of data.variants) {
         if (variant.images && variant.images.length > 0) {
           for (let j = 0; j < variant.images.length; j++) {
             const imageUrl = await uploadImage(variant.images[j], {
               folder: "products/variants",
             });
 
-            await prisma.productImage.update({
-              where: { id: createdVariant.images[j].id },
-              data: { url: imageUrl },
+            await prisma.productImage.create({
+              data: {
+                productId: product.id,
+                url: imageUrl,
+                sortOrder: images.length + j,
+                isPrimary: false,
+              },
             });
           }
         }
@@ -412,11 +402,18 @@ export const productService = {
         compareAtPrice: data.compareAtPrice,
         stockQuantity: data.stockQuantity,
         weight: data.weight,
-        attributes: data.attributes as Record<string, unknown>,
-        images: images.length > 0 ? { create: images } : undefined,
+        attributes: (data.attributes ?? {}) as any,
       },
-      include: { images: true },
     });
+
+    if (images.length > 0) {
+      await prisma.productImage.createMany({
+        data: images.map((img) => ({
+          productId,
+          ...img,
+        })),
+      });
+    }
 
     return variant;
   },
@@ -424,7 +421,7 @@ export const productService = {
   updateVariant: async (variantId: string, data: UpdateProductVariantData, vendorId?: string) => {
     const existingVariant = await prisma.productVariant.findUnique({
       where: { id: variantId },
-      include: { product: true, images: true },
+      include: { product: { include: { images: true } } },
     });
 
     if (!existingVariant) {
@@ -446,18 +443,19 @@ export const productService = {
     }
 
     // Handle new images
-    let newImages: { url: string; sortOrder: number; isPrimary: boolean }[] = [];
-
     if (data.images && data.images.length > 0) {
       for (let i = 0; i < data.images.length; i++) {
         const imageUrl = await uploadImage(data.images[i], {
           folder: "products/variants",
         });
 
-        newImages.push({
-          url: imageUrl,
-          sortOrder: existingVariant.images.length + i,
-          isPrimary: existingVariant.images.length === 0 && i === 0,
+        await prisma.productImage.create({
+          data: {
+            productId: existingVariant.productId,
+            url: imageUrl,
+            sortOrder: existingVariant.product.images.length + i,
+            isPrimary: existingVariant.product.images.length === 0 && i === 0,
+          },
         });
       }
     }
@@ -470,10 +468,8 @@ export const productService = {
         ...(data.compareAtPrice !== undefined && { compareAtPrice: data.compareAtPrice }),
         ...(data.stockQuantity !== undefined && { stockQuantity: data.stockQuantity }),
         ...(data.weight !== undefined && { weight: data.weight }),
-        ...(data.attributes !== undefined && { attributes: data.attributes as Record<string, unknown> }),
-        ...(newImages.length > 0 && { images: { create: newImages } }),
+        ...(data.attributes !== undefined && { attributes: data.attributes as any }),
       },
-      include: { images: true },
     });
 
     return variant;

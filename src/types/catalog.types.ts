@@ -150,7 +150,7 @@ export interface UpdateCouponData {
 export interface CreateOrderData {
   userId?: string;
   couponId?: string;
-  totalAmount: number;
+  totalAmount?: number;
   taxAmount?: number;
   shippingAmount?: number;
   discountAmount?: number;

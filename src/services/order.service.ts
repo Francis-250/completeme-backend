@@ -150,7 +150,6 @@ export const orderService = {
                   product: {
                     include: { images: true },
                   },
-                  images: true,
                 },
               },
             },
@@ -163,20 +162,22 @@ export const orderService = {
 
       // Update variant stock
       for (const item of orderItems) {
-        await tx.productVariant.update({
-          where: { id: item.variantId },
-          data: { stockQuantity: { decrement: item.quantity } },
-        });
+        if (item.variantId) {
+          await tx.productVariant.update({
+            where: { id: item.variantId },
+            data: { stockQuantity: { decrement: item.quantity } },
+          });
 
-        // Create stock transaction
-        await tx.stockTransaction.create({
-          data: {
-            variantId: item.variantId,
-            quantity: -item.quantity,
-            type: "SALE",
-            reference: newOrder.id,
-          },
-        });
+          // Create stock transaction
+          await tx.stockTransaction.create({
+            data: {
+              variantId: item.variantId,
+              quantity: -item.quantity,
+              type: "SALE",
+              reference: newOrder.id,
+            },
+          });
+        }
       }
 
       // Update coupon usage if applicable
@@ -279,6 +280,7 @@ export const orderService = {
   update: async (id: string, data: UpdateOrderData, userId?: string, isAdmin = false) => {
     const existingOrder = await prisma.order.findUnique({
       where: { id },
+      include: { orderItems: true },
     });
 
     if (!existingOrder) {
@@ -334,7 +336,6 @@ export const orderService = {
             variant: {
               include: {
                 product: { include: { images: true } },
-                images: true,
               },
             },
           },
@@ -351,19 +352,21 @@ export const orderService = {
     if (data.status === "CANCELLED" && existingOrder.status !== "CANCELLED") {
       await prisma.$transaction(async (tx) => {
         for (const item of existingOrder.orderItems) {
-          await tx.productVariant.update({
-            where: { id: item.variantId },
-            data: { stockQuantity: { increment: item.quantity } },
-          });
+          if (item.variantId) {
+            await tx.productVariant.update({
+              where: { id: item.variantId },
+              data: { stockQuantity: { increment: item.quantity } },
+            });
 
-          await tx.stockTransaction.create({
-            data: {
-              variantId: item.variantId,
-              quantity: item.quantity,
-              type: "RETURN",
-              reference: id,
-            },
-          });
+            await tx.stockTransaction.create({
+              data: {
+                variantId: item.variantId,
+                quantity: item.quantity,
+                type: "RETURN",
+                reference: id,
+              },
+            });
+          }
         }
 
         // Restore coupon usage
@@ -384,7 +387,7 @@ export const orderService = {
   },
 
   cancel: async (id: string, userId?: string, isAdmin = false) => {
-    return this.update(id, { status: "CANCELLED" }, userId, isAdmin);
+    return orderService.update(id, { status: "CANCELLED" }, userId, isAdmin);
   },
 
   getStats: async (userId?: string) => {

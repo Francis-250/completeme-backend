@@ -9,7 +9,7 @@ export const wishlistService = {
         product: {
           include: {
             images: true,
-            variants: { include: { images: true } },
+            variants: true,
             category: true,
             brand: true,
           },
@@ -52,7 +52,7 @@ export const wishlistService = {
         product: {
           include: {
             images: true,
-            variants: { include: { images: true } },
+            variants: true,
             category: true,
             brand: true,
           },

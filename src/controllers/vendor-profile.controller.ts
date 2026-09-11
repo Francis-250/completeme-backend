@@ -23,7 +23,7 @@ export const vendorProfileController = {
       }
 
       // Check if user already has vendor profile
-      if (req.user?.role !== "ADMIN" && targetUserId !== req.user.id) {
+      if (req.user?.role !== "ADMIN" && targetUserId !== req.user?.id) {
         return res.status(403).json({
           success: false,
           message: "Forbidden",
