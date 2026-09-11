@@ -23,7 +23,7 @@ export const productController = {
 
       const parsedVariants = typeof variants === "string" ? JSON.parse(variants) : variants;
 
-      const vendorId = req.user?.role === "VENDOR" ? req.user.id : undefined;
+      const vendorId = req.user?.role === "VENDOR" ? req.user.id : (req.body.vendorId || undefined);
 
       const product = await productService.create({
         name: name.trim(),
@@ -33,8 +33,10 @@ export const productController = {
         metaDescription,
         categoryId,
         brandId,
-        isActive: isActive !== undefined ? isActive === "true" : true,
+        vendorId,
+        isActive: isActive !== undefined ? (typeof isActive === "boolean" ? isActive : isActive === "true") : true,
         images: req.files as Express.Multer.File[],
+        imageUrls: req.body.images && Array.isArray(req.body.images) ? req.body.images : undefined,
         variants: parsedVariants,
       }, vendorId);
 
@@ -181,7 +183,7 @@ export const productController = {
     try {
       const id: string = req.params.id;
 
-      const { name, description, shortDescription, metaTitle, metaDescription, categoryId, brandId, isActive, variants } = req.body;
+      const { name, description, shortDescription, metaTitle, metaDescription, categoryId, brandId, isActive, variants, vendorId: bodyVendorId } = req.body;
 
       const parsedVariants = variants ? (typeof variants === "string" ? JSON.parse(variants) : variants) : undefined;
 
@@ -195,8 +197,10 @@ export const productController = {
         metaDescription,
         categoryId,
         brandId,
-        isActive: isActive !== undefined ? isActive === "true" : undefined,
+        vendorId: bodyVendorId !== undefined ? (bodyVendorId || null) : undefined,
+        isActive: isActive !== undefined ? (typeof isActive === "boolean" ? isActive : isActive === "true") : undefined,
         images: req.files as Express.Multer.File[],
+        imageUrls: req.body.images && Array.isArray(req.body.images) ? req.body.images : undefined,
         variants: parsedVariants,
       }, vendorId);
 

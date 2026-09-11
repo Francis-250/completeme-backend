@@ -4,7 +4,7 @@ import { categoryService } from "../services/category.service";
 export const categoryController = {
   create: async (req: Request, res: Response) => {
     try {
-      const { name, description, parentId } = req.body;
+      const { name, description, parentId, imageUrl } = req.body;
 
       if (!name?.trim()) {
         return res.status(400).json({
@@ -18,6 +18,7 @@ export const categoryController = {
         description,
         parentId,
         image: req.file,
+        imageUrl,
       });
 
       return res.status(201).json({
@@ -121,13 +122,14 @@ export const categoryController = {
     try {
       const id: string = req.params.id;
 
-      const { name, description, parentId } = req.body;
+      const { name, description, parentId, imageUrl } = req.body;
 
       const category = await categoryService.update(id, {
         name: name?.trim(),
         description,
         parentId,
         image: req.file,
+        imageUrl,
       });
 
       return res.status(200).json({

@@ -15,6 +15,7 @@ export interface CreateCategoryData {
   description?: string;
   parentId?: string;
   image?: Express.Multer.File;
+  imageUrl?: string;
 }
 
 export interface UpdateCategoryData {
@@ -22,6 +23,7 @@ export interface UpdateCategoryData {
   description?: string;
   parentId?: string;
   image?: Express.Multer.File;
+  imageUrl?: string;
 }
 
 export interface CreateTagData {
@@ -58,8 +60,10 @@ export interface CreateProductData {
   metaDescription?: string;
   categoryId?: string;
   brandId?: string;
+  vendorId?: string;
   isActive?: boolean;
   images?: Express.Multer.File[];
+  imageUrls?: (string | { url: string; altText?: string; sortOrder?: number; isPrimary?: boolean })[];
   variants: CreateProductVariantData[];
 }
 
@@ -71,8 +75,10 @@ export interface UpdateProductData {
   metaDescription?: string;
   categoryId?: string;
   brandId?: string;
+  vendorId?: string;
   isActive?: boolean;
   images?: Express.Multer.File[];
+  imageUrls?: (string | { url: string; altText?: string; sortOrder?: number; isPrimary?: boolean })[];
   variants?: CreateProductVariantData[];
 }
 

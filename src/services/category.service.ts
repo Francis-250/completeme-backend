@@ -27,7 +27,7 @@ export const categoryService = {
       }
     }
 
-    let imageUrl: string | undefined;
+    let imageUrl = data.imageUrl;
 
     if (data.image) {
       imageUrl = await uploadImage(data.image, {
@@ -88,7 +88,7 @@ export const categoryService = {
     }
 
     let slug: string | undefined;
-    let imageUrl: string | undefined;
+    let imageUrl: string | undefined = data.imageUrl;
 
     if (data.name) {
       slug = generateSlug(data.name);
@@ -130,7 +130,7 @@ export const categoryService = {
       data: {
         ...(data.name !== undefined && { name: data.name, slug }),
         ...(data.description !== undefined && { description: data.description }),
-        ...(data.parentId !== undefined && { parentId: data.parentId }),
+        ...(data.parentId !== undefined && { parentId: data.parentId || null }),
         ...(imageUrl !== undefined && { imageUrl }),
       },
     });

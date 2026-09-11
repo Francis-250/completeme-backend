@@ -37,9 +37,10 @@ export const productService = {
       }
     }
 
-    if (vendorId) {
+    const effectiveVendorId = vendorId || data.vendorId;
+    if (effectiveVendorId) {
       const vendor = await prisma.vendorProfile.findUnique({
-        where: { id: vendorId },
+        where: { id: effectiveVendorId },
       });
 
       if (!vendor) {
@@ -61,6 +62,16 @@ export const productService = {
           isPrimary: i === 0,
         });
       }
+    } else if (data.imageUrls && data.imageUrls.length > 0) {
+      for (let i = 0; i < data.imageUrls.length; i++) {
+        const item = data.imageUrls[i];
+        images.push({
+          url: typeof item === "string" ? item : item.url,
+          altText: typeof item === "object" ? item.altText : undefined,
+          sortOrder: typeof item === "object" && item.sortOrder !== undefined ? item.sortOrder : i,
+          isPrimary: typeof item === "object" && item.isPrimary !== undefined ? item.isPrimary : i === 0,
+        });
+      }
     }
 
     const variants = data.variants.map((variant, index) => ({
@@ -80,7 +91,7 @@ export const productService = {
         metaDescription: data.metaDescription,
         categoryId: data.categoryId,
         brandId: data.brandId,
-        vendorId: vendorId,
+        vendorId: effectiveVendorId,
         isActive: data.isActive ?? true,
         images: {
           create: images,
@@ -290,7 +301,17 @@ export const productService = {
       }
     }
 
-    // Handle new images
+    if (data.vendorId) {
+      const vendor = await prisma.vendorProfile.findUnique({
+        where: { id: data.vendorId },
+      });
+
+      if (!vendor) {
+        throw new Error("VENDOR_NOT_FOUND");
+      }
+    }
+
+    // Handle new images upload
     let newImages: { url: string; altText?: string; sortOrder: number; isPrimary: boolean }[] = [];
 
     if (data.images && data.images.length > 0) {
@@ -305,6 +326,54 @@ export const productService = {
           isPrimary: existingProduct.images.length === 0 && i === 0,
         });
       }
+    } else if (data.imageUrls && data.imageUrls.length > 0) {
+      // Overwrite images if an explicit list was passed
+      await prisma.productImage.deleteMany({
+        where: { productId: id },
+      });
+      await prisma.productImage.createMany({
+        data: data.imageUrls.map((img, idx) => ({
+          productId: id,
+          url: typeof img === "string" ? img : img.url,
+          altText: typeof img === "object" ? img.altText : null,
+          sortOrder: typeof img === "object" && img.sortOrder !== undefined ? img.sortOrder : idx,
+          isPrimary: typeof img === "object" && img.isPrimary !== undefined ? img.isPrimary : idx === 0,
+        })),
+      });
+    }
+
+    // Handle variants update if provided
+    if (data.variants && data.variants.length > 0) {
+      for (const v of data.variants) {
+        const existingVariant = existingProduct.variants.find(
+          (ev) => ev.sku === v.sku || (v as any).id === ev.id,
+        );
+        if (existingVariant) {
+          await prisma.productVariant.update({
+            where: { id: existingVariant.id },
+            data: {
+              sku: v.sku,
+              price: v.price,
+              compareAtPrice: v.compareAtPrice,
+              stockQuantity: v.stockQuantity,
+              weight: v.weight,
+              attributes: (v.attributes ?? {}) as any,
+            },
+          });
+        } else {
+          await prisma.productVariant.create({
+            data: {
+              productId: id,
+              sku: v.sku,
+              price: v.price,
+              compareAtPrice: v.compareAtPrice,
+              stockQuantity: v.stockQuantity,
+              weight: v.weight,
+              attributes: (v.attributes ?? {}) as any,
+            },
+          });
+        }
+      }
     }
 
     const product = await prisma.product.update({
@@ -315,8 +384,9 @@ export const productService = {
         ...(data.shortDescription !== undefined && { shortDescription: data.shortDescription }),
         ...(data.metaTitle !== undefined && { metaTitle: data.metaTitle }),
         ...(data.metaDescription !== undefined && { metaDescription: data.metaDescription }),
-        ...(data.categoryId !== undefined && { categoryId: data.categoryId }),
-        ...(data.brandId !== undefined && { brandId: data.brandId }),
+        ...(data.categoryId !== undefined && { categoryId: data.categoryId || null }),
+        ...(data.brandId !== undefined && { brandId: data.brandId || null }),
+        ...(data.vendorId !== undefined && { vendorId: data.vendorId || null }),
         ...(data.isActive !== undefined && { isActive: data.isActive }),
         ...(newImages.length > 0 && {
           images: { create: newImages },
