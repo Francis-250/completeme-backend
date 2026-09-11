@@ -12,8 +12,10 @@ const port = process.env.PORT;
 
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGINS?.split(",") ?? [],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    origin: process.env.ALLOWED_ORIGINS
+      ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
+      : ["http://localhost:3000", "http://localhost:5000"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   }),
 );

@@ -53,7 +53,7 @@ async function main() {
       username: "admin_francois",
       displayUsername: "Francois Admin",
       role: "ADMIN",
-      twoFactorEnabled: true,
+      twoFactorEnabled: false,
     },
   });
 
