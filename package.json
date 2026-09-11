@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "tsx src/app.ts",
-    "dev": "nodemon --watch src --watch types --ext ts --exec tsx src/app.ts",
+    "dev": "nodemon --watch src --watch types --watch .env --ext ts,env --exec tsx src/app.ts",
     "build": "tsc",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
