@@ -10,17 +10,51 @@ import routers from "./routes";
 const app = express();
 const port = process.env.PORT;
 
+const allowedOrigins = Array.from(
+  new Set([
+    ...(process.env.ALLOWED_ORIGINS
+      ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
+      : []),
+    ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim()] : []),
+  ]),
+);
+
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGINS
-      ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
-      : ["http://localhost:3000", "http://localhost:5000"],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        (process.env.NODE_ENV !== "production" &&
+          (origin.startsWith("http://localhost:") ||
+            origin.startsWith("http://127.0.0.1:")))
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   }),
 );
 
 app.all("/api/auth/*splat", toNodeHandler(auth));
+
+app.get("/callback", (req, res) => {
+  const targetOrigin =
+    process.env.FRONTEND_URL ||
+    (process.env.ALLOWED_ORIGINS
+      ? process.env.ALLOWED_ORIGINS.split(",")[0].trim()
+      : "") ||
+    (req.headers.origin as string) ||
+    "";
+  const query = req.url.includes("?") ? req.url.slice(req.url.indexOf("?")) : "";
+  if (targetOrigin) {
+    res.redirect(`${targetOrigin}/callback${query}`);
+  } else {
+    res.redirect(`/`);
+  }
+});
 
 app.use(express.json());
 

@@ -12,6 +12,7 @@ import {
 } from "better-auth/plugins";
 import { sendEmail } from "./brevo";
 import {
+  resetPasswordOtpTemplate,
   resetPasswordTemplate,
   verificationOtpTemplate,
 } from "../utils/email.temp";
@@ -25,14 +26,20 @@ export const auth = betterAuth({
       ...(process.env.ALLOWED_ORIGINS
         ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
         : []),
-      "http://localhost:3000",
-      "http://127.0.0.1:3000",
-      "http://localhost:5000",
-      "http://127.0.0.1:5000",
+      ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim()] : []),
+      ...(process.env.NODE_ENV !== "production"
+        ? [
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "http://localhost:5000",
+            "http://127.0.0.1:5000",
+          ]
+        : []),
     ]),
   ),
   emailAndPassword: {
     enabled: true,
+    autoSignIn: false,
     minPasswordLength: 3,
     maxPasswordLength: 100,
 
@@ -88,12 +95,12 @@ export const auth = betterAuth({
         } else if (type === "forget-password") {
           await sendEmail({
             to: email,
-            ...verificationOtpTemplate({
+            ...resetPasswordOtpTemplate({
               username: email,
               otp,
-              expiresInMinutes: 5,
+              expiresInMinutes: 20,
             }),
-            subject: "Reset your password — SHOP PULSE",
+            subject: "Reset your password code — SHOP PULSE",
           });
         }
       },
