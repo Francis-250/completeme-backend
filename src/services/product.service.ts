@@ -142,7 +142,7 @@ export const productService = {
       where: { id: product.id },
       include: {
         images: true,
-        variants: { include: { images: true } },
+        variants: true,
         category: true,
         brand: true,
         vendor: true,
@@ -190,7 +190,7 @@ export const productService = {
         where,
         include: {
           images: true,
-          variants: { include: { images: true } },
+          variants: true,
           category: true,
           brand: true,
           vendor: true,
@@ -210,7 +210,7 @@ export const productService = {
       where: { slug },
       include: {
         images: true,
-        variants: { include: { images: true } },
+        variants: true,
         category: true,
         brand: true,
         vendor: true,
@@ -232,7 +232,7 @@ export const productService = {
       where: { id },
       include: {
         images: true,
-        variants: { include: { images: true } },
+        variants: true,
         category: true,
         brand: true,
         vendor: true,
@@ -251,7 +251,7 @@ export const productService = {
   update: async (id: string, data: UpdateProductData, vendorId?: string) => {
     const existingProduct = await prisma.product.findUnique({
       where: { id },
-      include: { images: true, variants: { include: { images: true } } },
+      include: { images: true, variants: true },
     });
 
     if (!existingProduct) {
@@ -334,7 +334,7 @@ export const productService = {
       },
       include: {
         images: true,
-        variants: { include: { images: true } },
+        variants: true,
         category: true,
         brand: true,
         vendor: true,
@@ -347,7 +347,7 @@ export const productService = {
   delete: async (id: string, vendorId?: string) => {
     const existingProduct = await prisma.product.findUnique({
       where: { id },
-      include: { images: true, variants: { include: { images: true } } },
+      include: { images: true, variants: true },
     });
 
     if (!existingProduct) {
