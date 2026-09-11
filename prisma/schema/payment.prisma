@@ -1,10 +1,14 @@
 model Payment {
-  id            String        @id @default(uuid())
-  orderId       String
-  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id      String @id @default(uuid())
+  orderId String
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
   paymentMethod String
-  transactionId String        @unique
-  amount        Decimal       @db.Decimal(12, 2)
-  status        PaymentStatus
-  createdAt     DateTime      @default(now())
+  transactionId String @unique
+
+  amount Decimal @db.Decimal(12, 2)
+  status PaymentStatus
+
+  createdAt DateTime @default(now())
 }

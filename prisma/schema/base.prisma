@@ -6,13 +6,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum Role {
-  CUSTOMER
-  MANAGER
-  VENDOR
-  ADMIN
-}
-
 enum AddressType {
   SHIPPING
   BILLING
@@ -31,12 +24,6 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   REFUNDED
-}
-
-enum VerificationType {
-  EMAIL_VERIFICATION
-  PASSWORD_RESET
-  TWO_FACTOR
 }
 
 enum DiscountType {

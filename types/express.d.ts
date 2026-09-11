@@ -1,11 +1,12 @@
-export {};
+import { Session } from "../src/lib/auth";
 
 declare global {
   namespace Express {
     interface Request {
-      user?: {
-        userId: string;
-      };
+      user?: Session["user"];
+      session?: Session["session"];
     }
   }
 }
+
+export {};

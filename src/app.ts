@@ -1,26 +1,36 @@
+import "dotenv/config";
 import express from "express";
-import cookieParser from "cookie-parser";
-import { corsMiddleware } from "./config/cors";
-import router from "./routes";
-import { errorMiddleware } from "./middlewares/error.middleware";
+import cors from "cors";
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./lib/auth";
+import swaggerRouter, { generateOpenAPISchema } from "./docs/swagger";
+
+import routers from "./routes";
 
 const app = express();
+const port = process.env.PORT;
 
-app.use(corsMiddleware);
-app.use(cookieParser());
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS?.split(",") ?? [],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  }),
+);
+
+app.all("/api/auth/*splat", toNodeHandler(auth));
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-app.get("/health", (_req, res) => {
-  res.status(200).json({ status: "ok" });
+app.use("/api-docs", swaggerRouter);
+
+app.get("/api-docs.json", async (req, res) => {
+  const schema = await generateOpenAPISchema();
+  res.json(schema);
 });
 
-app.use("/api", router);
+app.use("/api", routers);
 
-app.use((_req, res) => {
-  res.status(404).json({ message: "Route not found" });
+app.listen(port, () => {
+  console.log(`http://localhost:${port}`);
 });
-
-app.use(errorMiddleware);
-
-export default app;

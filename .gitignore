@@ -11,3 +11,4 @@ dist/
 .claude/
 
 skills-lock.json
+/src/generated/prisma

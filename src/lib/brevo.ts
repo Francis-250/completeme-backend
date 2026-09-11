@@ -30,7 +30,10 @@ export const sendEmail = async ({ to, subject, html, text }: EmailOptions) => {
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        sender: { name: senderName, email: senderEmail },
+        sender: {
+          name: senderName,
+          email: senderEmail,
+        },
         to: [{ email: to }],
         subject,
         htmlContent: html,
@@ -44,7 +47,7 @@ export const sendEmail = async ({ to, subject, html, text }: EmailOptions) => {
     try {
       responseBody = responseText ? JSON.parse(responseText) : null;
     } catch {
-      // Brevo can return a non-JSON proxy response
+      // Brevo can return a non-JSON proxy response.
     }
 
     if (!response.ok) {
@@ -65,6 +68,7 @@ export const sendEmail = async ({ to, subject, html, text }: EmailOptions) => {
 
 export const sendEmailOrThrow = async (options: EmailOptions) => {
   const sent = await sendEmail(options);
+
   if (!sent) {
     throw new Error(
       "Email delivery failed. Check the Brevo sender configuration.",

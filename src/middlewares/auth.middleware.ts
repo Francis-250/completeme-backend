@@ -1,23 +1,59 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyToken } from "../lib/jwt";
-import { AppError } from "../utils/error-response";
+import { fromNodeHeaders } from "better-auth/node";
+import { auth } from "../lib/auth";
 
-export function authMiddleware(
+export const requireAuth = async (
   req: Request,
-  _res: Response,
+  res: Response,
   next: NextFunction,
-) {
-  const token = req.cookies?.token;
-
-  if (!token) {
-    return next(new AppError("Not authenticated", 401));
-  }
-
+) => {
   try {
-    const payload = verifyToken(token);
-    req.user = { userId: payload.userId };
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+
+    if (!session) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    req.user = session.user;
+    req.session = session.session;
+
     next();
-  } catch {
-    next(new AppError("Invalid or expired session", 401));
+  } catch (error) {
+    console.error("Authentication error:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
+
+export const requireRole = (role: string | string[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const session = await auth.api.getSession({
+        headers: fromNodeHeaders(req.headers),
+      });
+
+      if (!session) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      req.user = session.user;
+      req.session = session.session;
+
+      const userRole = session.user.role;
+      const allowedRoles = Array.isArray(role) ? role : [role];
+
+      if (!userRole || !allowedRoles.includes(userRole)) {
+        return res.status(403).json({
+          error: "Forbidden",
+          message: `Required role: ${allowedRoles.join(" or ")}`,
+        });
+      }
+
+      next();
+    } catch (error) {
+      console.error("Authorization error:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
+};
