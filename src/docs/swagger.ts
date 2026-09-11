@@ -1,6 +1,8 @@
 import swaggerUi from "swagger-ui-express";
 import { Router } from "express";
 import { auth } from "../lib/auth";
+import { schemas } from "./schemas";
+import { customPaths, customTags } from "./paths";
 
 const router = Router();
 
@@ -37,21 +39,59 @@ export const generateOpenAPISchema = async () => {
     ]),
   );
 
+  const port = process.env.PORT || 5000;
+
   return {
     ...schema,
+    openapi: schema.openapi || "3.1.0",
     info: {
-      ...schema.info,
-      title: "My API",
-      description: "Full API reference powered by Better Auth",
+      title: "Shop Pulse E-Commerce API",
+      version: "1.0.0",
+      description:
+        "Comprehensive API reference for Shop Pulse — a full-featured e-commerce platform powering multi-vendor marketplaces, product catalog, cart & checkout, order tracking, payments, shipments, and customer account management.",
+      contact: {
+        name: "Shop Pulse API Support",
+      },
     },
-    servers: [{ url: "http://localhost:5000", description: "Local" }],
+    servers: [
+      {
+        url: `http://localhost:${port}`,
+        description: "Local development server",
+      },
+    ],
     tags: [
       {
         name: "Auth",
-        description: "Authentication and account endpoints",
-      }
+        description: "Authentication and account management endpoints powered by Better Auth",
+      },
+      ...customTags,
     ],
-    paths: authPaths,
+    paths: {
+      ...authPaths,
+      ...customPaths,
+    },
+    components: {
+      ...schema.components,
+      securitySchemes: {
+        ...schema.components?.securitySchemes,
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          description: "Enter your session token as a Bearer token: Bearer <session_token>",
+        },
+        cookieAuth: {
+          type: "apiKey",
+          in: "cookie",
+          name: "better-auth.session_token",
+          description: "Better Auth session cookie sent automatically with browser credentials.",
+        },
+      },
+      schemas: {
+        ...schema.components?.schemas,
+        ...schemas,
+      },
+    },
   };
 };
 
@@ -62,22 +102,30 @@ router.get("/", async (req, res, next) => {
     const schema = await generateOpenAPISchema();
 
     const html = swaggerUi.generateHTML(schema, {
-      customSiteTitle: "My API Docs",
+      customSiteTitle: "Shop Pulse API Documentation",
       customCss: `
-        .topbar { background-color: #1a1a2e; }
+        .topbar { background-color: #0f172a; padding: 12px 0; }
         .topbar-wrapper img { display: none; }
         .topbar-wrapper::after {
-          content: 'My API';
-          color: white;
-          font-size: 1.5rem;
-          font-weight: bold;
+          content: '⚡ Shop Pulse API Reference';
+          color: #f8fafc;
+          font-size: 1.4rem;
+          font-weight: 700;
+          letter-spacing: -0.025em;
         }
+        .swagger-ui .info { margin: 25px 0; }
+        .swagger-ui .info .title { font-size: 2.2rem; color: #0f172a; }
+        .swagger-ui .opblock-tag { font-size: 1.15rem; font-weight: 600; }
+        .swagger-ui .btn.authorize { background-color: #4f46e5; border-color: #4f46e5; color: white; }
+        .swagger-ui .btn.authorize svg { fill: white; }
       `,
       swaggerOptions: {
         persistAuthorization: true,
         displayRequestDuration: true,
         filter: true,
         tryItOutEnabled: true,
+        docExpansion: "none",
+        tagsSorter: "alpha",
       },
     });
 

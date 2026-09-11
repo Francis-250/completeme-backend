@@ -217,7 +217,7 @@ export interface UpdateVendorProfileData {
 }
 
 export interface CreateUserAddressData {
-  userId: string;
+  userId?: string;
   addressType: "SHIPPING" | "BILLING";
   addressLine1: string;
   addressLine2?: string;

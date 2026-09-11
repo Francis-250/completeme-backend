@@ -14,6 +14,7 @@ import paymentRoutes from "./payment.routes";
 import shipmentRoutes from "./shipment.routes";
 import vendorProfileRoutes from "./vendor-profile.routes";
 import userAddressRoutes from "./user-address.routes";
+import checkoutRoutes from "./checkout.routes";
 
 const router = Router();
 
@@ -31,5 +32,6 @@ router.use("/payments", paymentRoutes);
 router.use("/shipments", shipmentRoutes);
 router.use("/vendors", vendorProfileRoutes);
 router.use("/addresses", userAddressRoutes);
+router.use("/checkout", checkoutRoutes);
 
 export default router;
