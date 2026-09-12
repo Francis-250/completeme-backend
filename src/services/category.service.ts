@@ -30,9 +30,14 @@ export const categoryService = {
     let imageUrl = data.imageUrl;
 
     if (data.image) {
-      imageUrl = await uploadImage(data.image, {
-        folder: "categories",
-      });
+      try {
+        imageUrl = await uploadImage(data.image, {
+          folder: "categories",
+        });
+      } catch (uploadErr) {
+        console.warn("Category image upload error, using buffer fallback:", uploadErr);
+        imageUrl = `data:${data.image.mimetype || "image/jpeg"};base64,${data.image.buffer.toString("base64")}`;
+      }
     }
 
     const category = await prisma.category.create({
@@ -70,8 +75,10 @@ export const categoryService = {
   },
 
   getById: async (id: string) => {
-    const category = await prisma.category.findUnique({
-      where: { id },
+    const category = await prisma.category.findFirst({
+      where: {
+        OR: [{ id }, { slug: id }],
+      },
       include: { children: true, products: true },
     });
 
@@ -79,8 +86,10 @@ export const categoryService = {
   },
 
   update: async (id: string, data: UpdateCategoryData) => {
-    const existingCategory = await prisma.category.findUnique({
-      where: { id },
+    const existingCategory = await prisma.category.findFirst({
+      where: {
+        OR: [{ id }, { slug: id }],
+      },
     });
 
     if (!existingCategory) {
@@ -95,7 +104,7 @@ export const categoryService = {
 
       const duplicateCategory = await prisma.category.findFirst({
         where: {
-          id: { not: id },
+          id: { not: existingCategory.id },
           OR: [{ name: data.name }, { slug }],
         },
       });
@@ -106,7 +115,7 @@ export const categoryService = {
     }
 
     if (data.parentId) {
-      if (data.parentId === id) {
+      if (data.parentId === existingCategory.id) {
         throw new Error("CANNOT_BE_OWN_PARENT");
       }
 
@@ -120,13 +129,18 @@ export const categoryService = {
     }
 
     if (data.image) {
-      imageUrl = await uploadImage(data.image, {
-        folder: "categories",
-      });
+      try {
+        imageUrl = await uploadImage(data.image, {
+          folder: "categories",
+        });
+      } catch (uploadErr) {
+        console.warn("Category image upload error, using buffer fallback:", uploadErr);
+        imageUrl = `data:${data.image.mimetype || "image/jpeg"};base64,${data.image.buffer.toString("base64")}`;
+      }
     }
 
     const category = await prisma.category.update({
-      where: { id },
+      where: { id: existingCategory.id },
       data: {
         ...(data.name !== undefined && { name: data.name, slug }),
         ...(data.description !== undefined && { description: data.description }),

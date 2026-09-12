@@ -20,6 +20,7 @@ import customerRoutes from "./customer.routes";
 import settingsRoutes from "./settings.routes";
 import profileRoutes from "./profile.routes";
 import notificationRoutes from "./notification.routes";
+import newsletterRoutes from "./newsletter.routes";
 
 const router = Router();
 
@@ -43,5 +44,6 @@ router.use("/customers", customerRoutes);
 router.use("/settings", settingsRoutes);
 router.use("/profile", profileRoutes);
 router.use("/notifications", notificationRoutes);
+router.use("/newsletter", newsletterRoutes);
 
 export default router;

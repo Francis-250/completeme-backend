@@ -68,6 +68,23 @@ app.get("/api-docs.json", async (req, res) => {
 
 app.use("/api", routers);
 
+app.use(
+  (
+    err: any,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction,
+  ) => {
+    console.error("Global express error:", err);
+    const status =
+      err.status || err.statusCode || (err.name === "MulterError" ? 400 : 500);
+    return res.status(status).json({
+      success: false,
+      message: err.message || "An unexpected error occurred",
+    });
+  },
+);
+
 app.listen(port, () => {
   console.log(`http://localhost:${port}`);
   initAlertCron();

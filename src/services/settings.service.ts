@@ -31,6 +31,30 @@ export const DEFAULT_SETTINGS = {
   facebookUrl: "",
   instagramUrl: "",
   twitterUrl: "",
+
+  // Top Navbar / Announcement Bar
+  enableTopBar: true,
+  topBarText: "Free shipping on orders over $50 | Use code WELCOME10 for 10% off",
+  topBarLink: "/products",
+  topBarLinkText: "Shop Now",
+
+  // Promo Banner
+  enablePromoBanner: true,
+  promoBadge: "Limited time offer",
+  promoTitle: "Up to 30% off sound & style",
+  promoDescription: "Handpicked headphones, watches, and accessories at their best prices this season. Free shipping on orders over $50.",
+  promoButtonText: "Shop the sale",
+  promoButtonLink: "/deals",
+  promoImageUrl: "/image/watch.webp",
+
+  // Newsletter Banner
+  enableNewsletter: true,
+  newsletterTitle: "Stay in the loop",
+  newsletterSubtitle: "New drops, early access, and the occasional sale — no spam, ever.",
+  newsletterButtonText: "Subscribe",
+
+  // Brand Section
+  brandSectionTitle: "Trusted by brands you know",
 };
 
 export const settingsService = {

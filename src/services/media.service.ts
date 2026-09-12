@@ -25,7 +25,7 @@ export interface MediaResponse {
   folders: string[];
 }
 
-const APP_FOLDERS = ["products", "categories", "brands", "collections", "vendors", "uploads"];
+const APP_FOLDERS = ["products", "categories", "brands", "collections", "vendors", "banners", "uploads"];
 
 export const mediaService = {
   getFolders: async (): Promise<string[]> => {
@@ -243,9 +243,9 @@ export const mediaService = {
     let secureUrl: string;
     try {
       secureUrl = await uploadImage(file, { folder });
-    } catch (err) {
-      // If cloudinary fails or placeholder credentials in dev, create a local data/blob representation
-      secureUrl = `https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80`;
+    } catch (err: any) {
+      console.warn("Cloudinary upload failed (using buffer data URI fallback):", err?.message || err);
+      secureUrl = `data:${file.mimetype || "image/jpeg"};base64,${file.buffer.toString("base64")}`;
     }
 
     const filename = file.originalname.replace(/\.[^/.]+$/, "");
