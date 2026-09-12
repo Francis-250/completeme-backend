@@ -218,6 +218,32 @@ export const mediaService = {
       }
     }
 
+    // 5. Uploaded Media Assets (stored in database)
+    try {
+      const mediaAssets = await prisma.mediaAsset.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 100,
+      });
+      for (const m of mediaAssets) {
+        resources.push({
+          asset_id: m.id,
+          public_id: m.publicId,
+          format: m.format,
+          resource_type: m.resourceType,
+          type: "upload",
+          created_at: m.createdAt.toISOString(),
+          bytes: m.bytes,
+          width: m.width || 800,
+          height: m.height || 800,
+          folder: m.folder,
+          url: m.url,
+          secure_url: m.secureUrl,
+        });
+      }
+    } catch (err) {
+      console.warn("Failed to read MediaAsset records:", err);
+    }
+
     let filtered = resources;
     if (params.folder && params.folder !== "all") {
       filtered = filtered.filter((r) => r.folder === params.folder);
@@ -250,11 +276,30 @@ export const mediaService = {
 
     const filename = file.originalname.replace(/\.[^/.]+$/, "");
     const publicId = `${folder}/${Date.now()}_${filename}`;
+    const format = file.mimetype.split("/")[1] || "jpg";
+
+    // Persist to MediaAsset in DB so uploaded images survive page refreshes
+    try {
+      await prisma.mediaAsset.create({
+        data: {
+          publicId,
+          url: secureUrl,
+          secureUrl,
+          format,
+          bytes: file.size,
+          width: 800,
+          height: 800,
+          folder,
+        },
+      });
+    } catch (dbErr) {
+      console.warn("Failed to persist MediaAsset to database:", dbErr);
+    }
 
     return {
       asset_id: `media_${Date.now()}`,
       public_id: publicId,
-      format: file.mimetype.split("/")[1] || "jpg",
+      format,
       resource_type: "image",
       type: "upload",
       created_at: new Date().toISOString(),
@@ -267,13 +312,118 @@ export const mediaService = {
     };
   },
 
-  delete: async (publicId: string): Promise<boolean> => {
+  delete: async (rawPublicId: string): Promise<boolean> => {
+    const publicId = decodeURIComponent(rawPublicId);
+    console.log(`[MediaService.delete] Deleting media: "${publicId}"`);
+
+    // 1. Destroy on Cloudinary if it exists there
     try {
-      const result = await cloudinary.uploader.destroy(publicId);
-      return result.result === "ok" || result.result === "not found";
+      await cloudinary.uploader.destroy(publicId);
     } catch (err) {
-      console.error("Cloudinary delete failed:", err);
-      return true;
+      console.warn("Cloudinary destroy failed/skipped:", err);
     }
+
+    // 2. Delete from MediaAsset table
+    try {
+      await prisma.mediaAsset.deleteMany({
+        where: {
+          OR: [
+            { publicId: publicId },
+            { publicId: rawPublicId },
+            { url: { contains: publicId } },
+          ],
+        },
+      });
+    } catch (err) {
+      console.error("Failed to delete from MediaAsset table:", err);
+    }
+
+    // 3. If it's a product image (e.g. "products/img-id" or "products/uuid")
+    if (publicId.startsWith("products/")) {
+      const imgId = publicId.replace(/^products\//, "");
+      try {
+        await prisma.productImage.deleteMany({
+          where: {
+            OR: [
+              { id: imgId },
+              { url: { contains: imgId } },
+            ],
+          },
+        });
+      } catch (err) {
+        console.error("Failed to delete ProductImage:", err);
+      }
+    }
+
+    // 4. If it's a category image (e.g. "categories/slug" or "categories/uuid")
+    if (publicId.startsWith("categories/")) {
+      const catIdentifier = publicId.replace(/^categories\//, "");
+      try {
+        await prisma.category.updateMany({
+          where: {
+            OR: [
+              { slug: catIdentifier },
+              { id: catIdentifier },
+              { imageUrl: { contains: catIdentifier } },
+            ],
+          },
+          data: { imageUrl: null },
+        });
+      } catch (err) {
+        console.error("Failed to clear Category image:", err);
+      }
+    }
+
+    // 5. If it's a brand logo (e.g. "brands/slug" or "brands/uuid")
+    if (publicId.startsWith("brands/")) {
+      const brandIdentifier = publicId.replace(/^brands\//, "");
+      try {
+        await prisma.brand.updateMany({
+          where: {
+            OR: [
+              { slug: brandIdentifier },
+              { id: brandIdentifier },
+              { logoUrl: { contains: brandIdentifier } },
+            ],
+          },
+          data: { logoUrl: null },
+        });
+      } catch (err) {
+        console.error("Failed to clear Brand logo:", err);
+      }
+    }
+
+    // 6. If it's a collection image (e.g. "collections/slug" or "collections/uuid")
+    if (publicId.startsWith("collections/")) {
+      const colIdentifier = publicId.replace(/^collections\//, "");
+      try {
+        await prisma.collection.updateMany({
+          where: {
+            OR: [
+              { slug: colIdentifier },
+              { id: colIdentifier },
+              { imageUrl: { contains: colIdentifier } },
+            ],
+          },
+          data: { imageUrl: null },
+        });
+      } catch (err) {
+        console.error("Failed to clear Collection image:", err);
+      }
+    }
+
+    // 7. General fallback: if publicId matches any productImage id directly
+    try {
+      await prisma.productImage.deleteMany({
+        where: {
+          OR: [
+            { id: publicId },
+            { url: { contains: publicId } },
+          ],
+        },
+      });
+    } catch {}
+
+    return true;
   },
 };

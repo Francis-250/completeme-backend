@@ -158,3 +158,18 @@ model ProductReview {
 
   @@unique([productId, userId])
 }
+
+model MediaAsset {
+  id           String   @id @default(uuid())
+  publicId     String   @unique
+  url          String
+  secureUrl    String
+  format       String   @default("jpg")
+  resourceType String   @default("image")
+  bytes        Int      @default(0)
+  width        Int?
+  height       Int?
+  folder       String   @default("uploads")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
