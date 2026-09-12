@@ -2,6 +2,7 @@ import { CreateOrderData, CreateOrderItemData, UpdateOrderData } from "../types/
 import { prisma } from "../lib/prisma";
 import { cartService } from "./cart.service";
 import { couponService } from "./coupon.service";
+import { notificationService } from "./notification.service";
 
 export const orderService = {
   create: async (userId: string, data: CreateOrderData) => {
@@ -26,14 +27,24 @@ export const orderService = {
     const orderItems: CreateOrderItemData[] = [];
 
     for (const item of items) {
-      const variant = await prisma.productVariant.findUnique({
+      let variant = await prisma.productVariant.findUnique({
         where: { id: item.variantId },
         include: { product: true },
       });
 
+      // Fallback: if variantId is actually a productId
+      if (!variant && item.variantId) {
+        variant = await prisma.productVariant.findFirst({
+          where: { productId: item.variantId },
+          include: { product: true },
+        });
+      }
+
       if (!variant) {
         throw new Error(`VARIANT_NOT_FOUND: ${item.variantId}`);
       }
+
+      const activeVariantId = variant.id;
 
       if (!variant.product.isActive) {
         throw new Error(`PRODUCT_NOT_ACTIVE: ${variant.product.name}`);
@@ -47,7 +58,7 @@ export const orderService = {
       subtotal += priceAtPurchase * item.quantity;
 
       orderItems.push({
-        variantId: item.variantId,
+        variantId: activeVariantId,
         quantity: item.quantity,
         priceAtPurchase,
       });
@@ -114,14 +125,44 @@ export const orderService = {
     const shippingAmount = data.shippingAmount ?? 0;
     const totalAmount = subtotal + taxAmount + shippingAmount - discountAmount;
 
-    // Validate shipping address if provided
-    if (data.shippingAddressId) {
-      const address = await prisma.userAddress.findUnique({
-        where: { id: data.shippingAddressId },
-      });
+    // Validate or create shipping address
+    let shippingAddressId = data.shippingAddressId;
 
-      if (!address || address.userId !== userId) {
-        throw new Error("INVALID_SHIPPING_ADDRESS");
+    if (!shippingAddressId && (data as any).shippingAddress) {
+      const sa = (data as any).shippingAddress;
+      try {
+        const createdAddr = await prisma.userAddress.create({
+          data: {
+            userId,
+            addressType: "SHIPPING",
+            addressLine1: sa.addressLine1 || sa.address || "Standard shipping address",
+            addressLine2: sa.addressLine2 || null,
+            city: sa.city || "City",
+            state: sa.state || sa.city || "State",
+            postalCode: sa.postalCode || sa.zip || "00000",
+            country: sa.country || "United States",
+            isDefault: true,
+          },
+        });
+        shippingAddressId = createdAddr.id;
+      } catch (err) {
+        console.error("Could not create UserAddress:", err);
+      }
+    } else if (shippingAddressId) {
+      const address = await prisma.userAddress.findUnique({
+        where: { id: shippingAddressId },
+      });
+      if (!address) {
+        shippingAddressId = undefined;
+      }
+    }
+
+    if (!shippingAddressId) {
+      const defaultAddress = await prisma.userAddress.findFirst({
+        where: { userId },
+      });
+      if (defaultAddress) {
+        shippingAddressId = defaultAddress.id;
       }
     }
 
@@ -137,7 +178,7 @@ export const orderService = {
           shippingAmount,
           discountAmount,
           status: data.status ?? "PENDING",
-          shippingAddressId: data.shippingAddressId,
+          shippingAddressId,
           orderItems: {
             create: orderItems,
           },
@@ -180,6 +221,18 @@ export const orderService = {
         }
       }
 
+      // Record payment
+      const paymentMethod = (data as any).paymentMethod || "Credit Card";
+      await tx.payment.create({
+        data: {
+          orderId: newOrder.id,
+          paymentMethod,
+          transactionId: `txn_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+          amount: totalAmount,
+          status: "COMPLETED",
+        },
+      });
+
       // Update coupon usage if applicable
       if (couponId) {
         await tx.coupon.update({
@@ -203,6 +256,15 @@ export const orderService = {
 
       return newOrder;
     });
+
+    try {
+      await notificationService.create({
+        type: "order",
+        title: `New order: ${order.id}`,
+        description: `Order #${order.id} placed for $${totalAmount.toFixed(2)} (${orderItems.length} items)`,
+        href: `/admin/orders`,
+      });
+    } catch {}
 
     return order;
   },

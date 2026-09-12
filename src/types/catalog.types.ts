@@ -162,6 +162,9 @@ export interface CreateOrderData {
   discountAmount?: number;
   status?: "PENDING" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "RETURNED";
   shippingAddressId?: string;
+  shippingAddress?: any;
+  paymentMethod?: string;
+  email?: string;
   items: CreateOrderItemData[];
 }
 

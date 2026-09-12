@@ -11,10 +11,10 @@ router.get("/stats", optionalAuth, orderController.getStats);
 
 router.get("/:id", optionalAuth, orderController.getById);
 
-router.post("/", orderController.create);
+router.post("/", optionalAuth, orderController.create);
 
-router.patch("/:id", orderController.update);
+router.patch("/:id", optionalAuth, orderController.update);
 
-router.post("/:id/cancel", orderController.cancel);
+router.post("/:id/cancel", optionalAuth, orderController.cancel);
 
 export default router;
