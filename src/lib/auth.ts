@@ -28,6 +28,7 @@ export const auth = betterAuth({
         : []),
       ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim().replace(/\/$/, "")] : []),
       "https://shop-mocha-six.vercel.app",
+      "https://api-shoppulse.onrender.com",
       ...(process.env.NODE_ENV !== "production"
         ? [
             "http://localhost:3000",

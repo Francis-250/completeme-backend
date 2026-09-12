@@ -18,6 +18,7 @@ const allowedOrigins = Array.from(
       : []),
     ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim().replace(/\/$/, "")] : []),
     "https://shop-mocha-six.vercel.app",
+    "https://api-shoppulse.onrender.com",
   ]),
 );
 
