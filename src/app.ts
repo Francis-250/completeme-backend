@@ -9,6 +9,7 @@ import routers from "./routes";
 import { initAlertCron } from "./cron/alert.cron";
 
 const app = express();
+app.set("trust proxy", 1);
 const port = process.env.PORT || 5000;
 
 const allowedOrigins = Array.from(
