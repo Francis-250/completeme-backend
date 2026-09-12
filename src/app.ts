@@ -9,14 +9,15 @@ import routers from "./routes";
 import { initAlertCron } from "./cron/alert.cron";
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 5000;
 
 const allowedOrigins = Array.from(
   new Set([
     ...(process.env.ALLOWED_ORIGINS
-      ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
+      ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim().replace(/\/$/, ""))
       : []),
-    ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim()] : []),
+    ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim().replace(/\/$/, "")] : []),
+    "https://shop-mocha-six.vercel.app",
   ]),
 );
 
@@ -24,8 +25,10 @@ app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
+      const cleanOrigin = origin.replace(/\/$/, "");
       if (
         allowedOrigins.includes(origin) ||
+        allowedOrigins.includes(cleanOrigin) ||
         (process.env.NODE_ENV !== "production" &&
           (origin.startsWith("http://localhost:") ||
             origin.startsWith("http://127.0.0.1:")))

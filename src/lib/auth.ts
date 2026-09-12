@@ -24,9 +24,10 @@ export const auth = betterAuth({
   trustedOrigins: Array.from(
     new Set([
       ...(process.env.ALLOWED_ORIGINS
-        ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
+        ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim().replace(/\/$/, ""))
         : []),
-      ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim()] : []),
+      ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim().replace(/\/$/, "")] : []),
+      "https://shop-mocha-six.vercel.app",
       ...(process.env.NODE_ENV !== "production"
         ? [
             "http://localhost:3000",
