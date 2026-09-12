@@ -87,7 +87,7 @@ export const reviewService = {
     if (userId) where.userId = userId;
     if (isApproved !== undefined) where.isApproved = isApproved;
 
-    const [reviews, total] = await Promise.all([
+    const [rawReviews, total] = await Promise.all([
       prisma.productReview.findMany({
         where,
         include: {
@@ -95,6 +95,7 @@ export const reviewService = {
             select: {
               id: true,
               name: true,
+              email: true,
               image: true,
             },
           },
@@ -103,6 +104,7 @@ export const reviewService = {
               id: true,
               name: true,
               slug: true,
+              images: { select: { url: true }, take: 1 },
             },
           },
         },
@@ -112,6 +114,23 @@ export const reviewService = {
       }),
       prisma.productReview.count({ where }),
     ]);
+
+    const reviews = rawReviews.map((r) => ({
+      id: r.id,
+      productId: r.productId,
+      productName: r.product?.name || "Product",
+      productImage: r.product?.images?.[0]?.url || "/image/earphone.webp",
+      userId: r.userId,
+      userName: r.user?.name || "Customer",
+      userEmail: r.user?.email || "",
+      rating: r.rating,
+      title: r.title || undefined,
+      comment: r.comment || undefined,
+      isVerified: r.isVerified,
+      isApproved: r.isApproved,
+      status: r.isApproved ? "approved" : "pending",
+      createdAt: r.createdAt.toISOString(),
+    }));
 
     return { reviews, total, page, limit, totalPages: Math.ceil(total / limit) };
   },

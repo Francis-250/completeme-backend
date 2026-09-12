@@ -218,7 +218,7 @@ export const orderService = {
     const where: Record<string, unknown> = {};
 
     if (userId) where.userId = userId;
-    if (status) where.status = status;
+    if (status && status !== "all") where.status = (status as string).toUpperCase() as any;
 
     const [orders, total] = await Promise.all([
       prisma.order.findMany({
@@ -229,7 +229,6 @@ export const orderService = {
               variant: {
                 include: {
                   product: { include: { images: true } },
-                  images: true,
                 },
               },
             },
@@ -259,7 +258,6 @@ export const orderService = {
             variant: {
               include: {
                 product: { include: { images: true } },
-                images: true,
               },
             },
           },

@@ -1,17 +1,15 @@
 import { Router } from "express";
 
 import { orderController } from "../controllers/order.controller";
-import { requireAuth, requireRole } from "../middlewares/auth.middleware";
+import { optionalAuth, requireAuth, requireRole } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.use(requireAuth);
+router.get("/", optionalAuth, orderController.getAll);
 
-router.get("/", orderController.getAll);
+router.get("/stats", optionalAuth, orderController.getStats);
 
-router.get("/stats", orderController.getStats);
-
-router.get("/:id", orderController.getById);
+router.get("/:id", optionalAuth, orderController.getById);
 
 router.post("/", orderController.create);
 

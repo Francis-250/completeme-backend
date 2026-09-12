@@ -16,6 +16,10 @@ import vendorProfileRoutes from "./vendor-profile.routes";
 import userAddressRoutes from "./user-address.routes";
 import checkoutRoutes from "./checkout.routes";
 import mediaRoutes from "./media.routes";
+import customerRoutes from "./customer.routes";
+import settingsRoutes from "./settings.routes";
+import profileRoutes from "./profile.routes";
+import notificationRoutes from "./notification.routes";
 
 const router = Router();
 
@@ -35,5 +39,9 @@ router.use("/vendors", vendorProfileRoutes);
 router.use("/addresses", userAddressRoutes);
 router.use("/checkout", checkoutRoutes);
 router.use("/media", mediaRoutes);
+router.use("/customers", customerRoutes);
+router.use("/settings", settingsRoutes);
+router.use("/profile", profileRoutes);
+router.use("/notifications", notificationRoutes);
 
 export default router;

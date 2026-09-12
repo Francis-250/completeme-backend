@@ -6,6 +6,7 @@ import { auth } from "./lib/auth";
 import swaggerRouter, { generateOpenAPISchema } from "./docs/swagger";
 
 import routers from "./routes";
+import { initAlertCron } from "./cron/alert.cron";
 
 const app = express();
 const port = process.env.PORT;
@@ -69,4 +70,6 @@ app.use("/api", routers);
 
 app.listen(port, () => {
   console.log(`http://localhost:${port}`);
+  initAlertCron();
 });
+

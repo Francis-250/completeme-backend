@@ -67,7 +67,7 @@ export const reviewController = {
 
   getAll: async (req: Request, res: Response) => {
     try {
-      const { productId, userId, isApproved, page, limit } = req.query;
+      const { productId, userId, isApproved, page, limit, all } = req.query;
 
       const filters: Record<string, unknown> = {};
 
@@ -77,8 +77,9 @@ export const reviewController = {
       if (page) filters.page = parseInt(page as string);
       if (limit) filters.limit = parseInt(limit as string);
 
-      // Non-admin users only see approved reviews
-      if (req.user?.role !== "ADMIN") {
+      const isAdmin = (req.user?.role || "").toUpperCase() === "ADMIN";
+      // Only default to approved reviews if not admin and not explicitly requesting all
+      if (!isAdmin && all !== "true" && isApproved === undefined) {
         filters.isApproved = true;
       }
 
@@ -124,24 +125,38 @@ export const reviewController = {
   update: async (req: Request<{ id: string }>, res: Response) => {
     try {
       const id: string = req.params.id;
-      const { rating, title, comment, isApproved } = req.body;
-
+      const { rating, title, comment, isApproved, status } = req.body;
       const userId = req.user?.id;
-      const isAdmin = req.user?.role === "ADMIN";
+      const isAdmin = (req.user?.role || "").toUpperCase() === "ADMIN";
 
-      if (!userId) {
+      if (!userId && !isAdmin) {
         return res.status(401).json({
           success: false,
           message: "Unauthorized",
         });
       }
 
-      const review = await reviewService.update(id, userId, {
-        rating: rating !== undefined ? parseInt(rating) : undefined,
-        title,
-        comment,
-        isApproved: isAdmin ? (isApproved === "true" ? true : isApproved === "false" ? false : undefined) : undefined,
-      }, isAdmin);
+      let effectiveApproved: boolean | undefined =
+        isApproved === true || isApproved === "true"
+          ? true
+          : isApproved === false || isApproved === "false"
+            ? false
+            : undefined;
+
+      if (status === "approved") effectiveApproved = true;
+      if (status === "rejected") effectiveApproved = false;
+
+      const review = await reviewService.update(
+        id,
+        userId || "",
+        {
+          rating: rating !== undefined ? parseInt(rating) : undefined,
+          title,
+          comment,
+          isApproved: isAdmin ? effectiveApproved : undefined,
+        },
+        isAdmin,
+      );
 
       return res.status(200).json({
         success: true,

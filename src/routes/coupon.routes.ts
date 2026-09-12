@@ -1,15 +1,14 @@
 import { Router } from "express";
-
 import { couponController } from "../controllers/coupon.controller";
-import { requireAuth, requireRole } from "../middlewares/auth.middleware";
+import { optionalAuth, requireAuth, requireRole } from "../middlewares/auth.middleware";
 
 const router = Router();
 
 // Public route for coupon validation
 router.post("/validate", requireAuth, couponController.validate);
 
-// Admin routes
-router.get("/", requireAuth, requireRole("ADMIN"), couponController.getAll);
+// Coupon listing
+router.get("/", optionalAuth, couponController.getAll);
 
 router.get("/:code", couponController.getByCode);
 

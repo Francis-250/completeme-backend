@@ -419,8 +419,45 @@ export const productService = {
       throw new Error("FORBIDDEN");
     }
 
-    await prisma.product.delete({
-      where: { id },
+    const variantIds = existingProduct.variants.map((v) => v.id);
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Delete collection associations
+      await tx.collectionProduct.deleteMany({ where: { productId: id } });
+
+      // 2. Delete tag associations
+      await tx.productTag.deleteMany({ where: { productId: id } });
+
+      // 3. Delete wishlists
+      await tx.wishlistItem.deleteMany({ where: { productId: id } });
+
+      // 4. Delete reviews
+      await tx.productReview.deleteMany({ where: { productId: id } });
+
+      // 5. Delete product images
+      await tx.productImage.deleteMany({ where: { productId: id } });
+
+      // 6. Clean up variant references
+      if (variantIds.length > 0) {
+        await tx.orderItem.updateMany({
+          where: { variantId: { in: variantIds } },
+          data: { variantId: null },
+        });
+        await tx.cartItem.deleteMany({
+          where: { variantId: { in: variantIds } },
+        });
+        await tx.stockTransaction.deleteMany({
+          where: { variantId: { in: variantIds } },
+        });
+        await tx.productVariant.deleteMany({
+          where: { id: { in: variantIds } },
+        });
+      }
+
+      // 7. Delete the product itself
+      await tx.product.delete({
+        where: { id },
+      });
     });
 
     return { success: true };

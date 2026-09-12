@@ -1,11 +1,11 @@
 import { Router } from "express";
 
 import { reviewController } from "../controllers/review.controller";
-import { requireAuth, requireRole } from "../middlewares/auth.middleware";
+import { optionalAuth, requireAuth, requireRole } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.get("/", reviewController.getAll);
+router.get("/", optionalAuth, reviewController.getAll);
 
 router.get("/:id", reviewController.getById);
 

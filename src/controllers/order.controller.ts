@@ -67,16 +67,19 @@ export const orderController = {
     try {
       const { status, page, limit } = req.query;
       const userId = req.user?.id;
-      const isAdmin = req.user?.role === "ADMIN";
+      const role = (req.user?.role || "").toUpperCase();
+      const isAdmin = role === "ADMIN";
 
       const filters: Record<string, unknown> = {};
 
-      if (status) filters.status = status as string;
+      if (status && status !== "all") {
+        filters.status = (status as string).toUpperCase();
+      }
       if (page) filters.page = parseInt(page as string);
       if (limit) filters.limit = parseInt(limit as string);
 
-      // Non-admin users only see their own orders
-      if (!isAdmin) {
+      // Non-admin users only see their own orders if user ID is present
+      if (!isAdmin && userId) {
         filters.userId = userId;
       }
 
