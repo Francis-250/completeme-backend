@@ -1,0 +1,29 @@
+model BlogPost {
+  id           String   @id @default(uuid())
+  title        String
+  slug         String   @unique
+  excerpt      String
+  content      String?
+  category     String   @default("General")
+  image        String?
+  author       String   @default("Editorial Team")
+  authorRole   String   @default("Contributor")
+  authorAvatar String?
+  readTime     String   @default("5 min read")
+  isFeatured   Boolean  @default(false)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ContactInquiry {
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  orderNumber String?
+  subject     String   @default("general")
+  message     String
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

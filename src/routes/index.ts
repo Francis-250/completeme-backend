@@ -21,6 +21,9 @@ import settingsRoutes from "./settings.routes";
 import profileRoutes from "./profile.routes";
 import notificationRoutes from "./notification.routes";
 import newsletterRoutes from "./newsletter.routes";
+import dealRoutes from "./deal.routes";
+import blogRoutes from "./blog.routes";
+import contactRoutes from "./contact.routes";
 
 const router = Router();
 
@@ -29,6 +32,9 @@ router.use("/brands", brandRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/collections", collectionRoutes);
 router.use("/products", productRoutes);
+router.use("/deals", dealRoutes);
+router.use("/blog", blogRoutes);
+router.use("/contact", contactRoutes);
 router.use("/reviews", reviewRoutes);
 router.use("/wishlist", wishlistRoutes);
 router.use("/cart", cartRoutes);
