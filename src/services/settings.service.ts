@@ -25,6 +25,16 @@ export const DEFAULT_SETTINGS = {
   enableReviews: true,
   enableWishlist: true,
 
+  // Mobile Money & Payment Methods
+  enableMomoPay: true,
+  momoPayCode: "*182*8*1*000000#",
+  momoMerchantName: "Shop Pulse",
+  enableAirtelPay: true,
+  airtelPayCode: "*182*8*1*000000#",
+  airtelMerchantName: "Shop Pulse",
+  enableCardPayment: true,
+  paymentInstructions: "Dial the payment code on your mobile phone, verify merchant name and amount, enter your PIN to authorize payment, then enter your phone number and transaction reference below.",
+
   metaTitle: "Shop Pulse — Everyday essentials",
   metaDescription: "Curated audio, watches, and accessories made to last.",
 

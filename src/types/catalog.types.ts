@@ -164,6 +164,8 @@ export interface CreateOrderData {
   shippingAddressId?: string;
   shippingAddress?: any;
   paymentMethod?: string;
+  transactionId?: string;
+  customerPhone?: string;
   email?: string;
   items: CreateOrderItemData[];
 }

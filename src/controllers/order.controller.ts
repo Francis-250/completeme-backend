@@ -15,6 +15,8 @@ export const orderController = {
         shippingAddressId,
         shippingAddress,
         paymentMethod,
+        transactionId,
+        customerPhone,
         email,
       } = req.body;
 
@@ -62,6 +64,8 @@ export const orderController = {
         shippingAddressId,
         shippingAddress,
         paymentMethod,
+        transactionId,
+        customerPhone,
       } as any);
 
       return res.status(201).json({

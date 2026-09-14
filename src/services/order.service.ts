@@ -223,11 +223,22 @@ export const orderService = {
 
       // Record payment
       const paymentMethod = (data as any).paymentMethod || "Credit Card";
+      const userTxnId = (data as any).transactionId ? String((data as any).transactionId).trim() : "";
+      let transactionId = userTxnId || `txn_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      if (userTxnId) {
+        const existingTxn = await tx.payment.findUnique({
+          where: { transactionId: userTxnId },
+        });
+        if (existingTxn) {
+          transactionId = `${userTxnId}_${Date.now().toString().slice(-4)}`;
+        }
+      }
+
       await tx.payment.create({
         data: {
           orderId: newOrder.id,
           paymentMethod,
-          transactionId: `txn_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+          transactionId,
           amount: totalAmount,
           status: "COMPLETED",
         },
