@@ -50,32 +50,31 @@ export const dealService = {
       orderBy: { createdAt: "desc" },
     });
 
+    // Filter products that have a real compareAtPrice > price
     const deals = allProducts
-      .map((product) => {
+      .filter((product) => {
         const primaryVariant = product.variants[0];
-        const price = primaryVariant ? Number(primaryVariant.price) : 0;
-        const compareAtPrice = primaryVariant?.compareAtPrice
+        if (!primaryVariant) return false;
+        const price = Number(primaryVariant.price) || 0;
+        const compareAtPrice = primaryVariant.compareAtPrice
           ? Number(primaryVariant.compareAtPrice)
           : null;
-
-        let discountPercentage = 0;
-        let originalPrice = compareAtPrice;
-
-        if (compareAtPrice && compareAtPrice > price) {
-          discountPercentage = Math.round(
-            ((compareAtPrice - price) / compareAtPrice) * 100,
-          );
-        } else {
-          discountPercentage = 15;
-          originalPrice = price > 0 ? Math.round(price * 1.2) : price;
-        }
+        return compareAtPrice !== null && compareAtPrice > price;
+      })
+      .map((product) => {
+        const primaryVariant = product.variants[0];
+        const price = Number(primaryVariant.price);
+        const compareAtPrice = Number(primaryVariant.compareAtPrice);
+        const discountPercentage = Math.round(
+          ((compareAtPrice - price) / compareAtPrice) * 100,
+        );
 
         return {
           ...product,
           price,
-          originalPrice,
+          originalPrice: compareAtPrice,
           discountPercentage,
-          savings: originalPrice ? originalPrice - price : 0,
+          savings: compareAtPrice - price,
         };
       })
       .filter((p) => {
