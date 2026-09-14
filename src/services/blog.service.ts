@@ -49,6 +49,12 @@ export const blogService = {
     });
   },
 
+  getById: async (id: string) => {
+    return prisma.blogPost.findUnique({
+      where: { id },
+    });
+  },
+
   create: async (data: {
     title: string;
     slug: string;

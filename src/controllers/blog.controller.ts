@@ -49,6 +49,30 @@ export const blogController = {
     }
   },
 
+  getById: async (req: Request, res: Response) => {
+    try {
+      const id = req.params.id as string;
+      const post = await blogService.getById(id);
+
+      if (!post) {
+        return res.status(404).json({
+          success: false,
+          message: "Blog post not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: post,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Failed to fetch blog post",
+      });
+    }
+  },
+
   create: async (req: Request, res: Response) => {
     try {
       const post = await blogService.create(req.body);

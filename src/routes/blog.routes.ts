@@ -5,6 +5,7 @@ import { requireAuth, requireRole } from "../middlewares/auth.middleware";
 const router = Router();
 
 router.get("/", blogController.getAll);
+router.get("/id/:id", blogController.getById);
 router.get("/:slug", blogController.getBySlug);
 
 router.post("/", requireAuth, requireRole(["ADMIN"]), blogController.create);
