@@ -20,4 +20,6 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD node -e "fetch('http://localhost:'+process.env.PORT+'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
+LABEL org.opencontainers.image.source="https://github.com/Francis-250/completeme-backend"
+
 CMD ["node", "--import", "tsx", "src/app.ts"]
