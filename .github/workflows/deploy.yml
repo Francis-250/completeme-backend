@@ -15,6 +15,6 @@ jobs:
       - name: Build and push the image
         run: |
           echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u Francis-250 --password-stdin
-          docker build ./backend --tag $IMAGE:${{ github.ref_name }} --tag $IMAGE:latest
+          docker build . --tag $IMAGE:${{ github.ref_name }} --tag $IMAGE:latest
           docker push $IMAGE:${{ github.ref_name }}
           docker push $IMAGE:latest
