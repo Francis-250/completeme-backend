@@ -22,10 +22,10 @@ export const profileService = {
         id: "admin-default",
         firstName: "Francois",
         lastName: "Admin",
-        email: "admin@shoppulse.com",
+        email: "admin@completeme.com",
         phone: "+15551001001",
         role: "Store Owner",
-        bio: "Running Shop Pulse — building a calm, considered store for everyday essentials.",
+        bio: "Running completeme — building a calm, considered store for everyday essentials.",
         avatarUrl: "",
       };
     }
@@ -40,8 +40,9 @@ export const profileService = {
       lastName,
       email: user.email,
       phone: user.phoneNumber || "",
-      role: user.role === "ADMIN" ? "Store Owner" : user.role || "Administrator",
-      bio: "Running Shop Pulse — building a calm, considered store for everyday essentials.",
+      role:
+        user.role === "ADMIN" ? "Store Owner" : user.role || "Administrator",
+      bio: "Running completeme — building a calm, considered store for everyday essentials.",
       avatarUrl: user.image || "",
     };
   },
@@ -72,7 +73,8 @@ export const profileService = {
     if (data.firstName !== undefined || data.lastName !== undefined) {
       const current = await prisma.user.findUnique({ where: { id: targetId } });
       const currentParts = (current?.name || "").split(" ");
-      const fName = data.firstName !== undefined ? data.firstName : currentParts[0] || "";
+      const fName =
+        data.firstName !== undefined ? data.firstName : currentParts[0] || "";
       const lName =
         data.lastName !== undefined
           ? data.lastName

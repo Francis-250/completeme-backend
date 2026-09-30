@@ -1,8 +1,8 @@
 import { prisma } from "../lib/prisma";
 
 export const DEFAULT_SETTINGS = {
-  storeName: "Shop Pulse",
-  storeEmail: "hello@shoppulse.com",
+  storeName: "completeme",
+  storeEmail: "hello@completeme.com",
   storePhone: "+1 (234) 567-890",
   storeAddress: "123 Market St, San Francisco, CA 94103",
   logoUrl: "",
@@ -28,14 +28,15 @@ export const DEFAULT_SETTINGS = {
   // Mobile Money & Payment Methods
   enableMomoPay: true,
   momoPayCode: "*182*8*1*000000#",
-  momoMerchantName: "Shop Pulse",
+  momoMerchantName: "completeme",
   enableAirtelPay: true,
   airtelPayCode: "*182*8*1*000000#",
-  airtelMerchantName: "Shop Pulse",
+  airtelMerchantName: "completeme",
   enableCardPayment: true,
-  paymentInstructions: "Dial the payment code on your mobile phone, verify merchant name and amount, enter your PIN to authorize payment, then enter your phone number and transaction reference below.",
+  paymentInstructions:
+    "Dial the payment code on your mobile phone, verify merchant name and amount, enter your PIN to authorize payment, then enter your phone number and transaction reference below.",
 
-  metaTitle: "Shop Pulse — Everyday essentials",
+  metaTitle: "completeme — Everyday essentials",
   metaDescription: "Curated audio, watches, and accessories made to last.",
 
   facebookUrl: "",
@@ -44,7 +45,8 @@ export const DEFAULT_SETTINGS = {
 
   // Top Navbar / Announcement Bar
   enableTopBar: true,
-  topBarText: "Free shipping on orders over $50 | Use code WELCOME10 for 10% off",
+  topBarText:
+    "Free shipping on orders over $50 | Use code WELCOME10 for 10% off",
   topBarLink: "/products",
   topBarLinkText: "Shop Now",
 
@@ -52,7 +54,8 @@ export const DEFAULT_SETTINGS = {
   enablePromoBanner: true,
   promoBadge: "Limited time offer",
   promoTitle: "Up to 30% off sound & style",
-  promoDescription: "Handpicked headphones, watches, and accessories at their best prices this season. Free shipping on orders over $50.",
+  promoDescription:
+    "Handpicked headphones, watches, and accessories at their best prices this season. Free shipping on orders over $50.",
   promoButtonText: "Shop the sale",
   promoButtonLink: "/deals",
   promoImageUrl: "/image/watch.webp",
@@ -60,7 +63,8 @@ export const DEFAULT_SETTINGS = {
   // Newsletter Banner
   enableNewsletter: true,
   newsletterTitle: "Stay in the loop",
-  newsletterSubtitle: "New drops, early access, and the occasional sale — no spam, ever.",
+  newsletterSubtitle:
+    "New drops, early access, and the occasional sale — no spam, ever.",
   newsletterButtonText: "Subscribe",
 
   // Brand Section

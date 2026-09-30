@@ -82,7 +82,7 @@ export const resetPasswordOtpTemplate = ({
   otp: string;
   expiresInMinutes?: number;
 }) => ({
-  subject: "Reset your password code — SHOP PULSE",
+  subject: "Reset your password code — completeme",
   html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 32px; border-radius: 8px;">
       <h2 style="color: #1a1a2e;">Reset your password</h2>
@@ -105,7 +105,7 @@ export const resetPasswordOtpTemplate = ({
       <p style="color: #aaa; font-size: 12px;">
         If you didn't request a password reset, you can safely ignore this email.
       </p>
-      <p style="color: #aaa; font-size: 12px;">— The SHOP PULSE Team</p>
+      <p style="color: #aaa; font-size: 12px;">— The completeme Team</p>
     </div>
   `,
   text: `Reset your password\n\nHi ${username},\n\nYour reset code is: ${otp}\n\nExpires in ${expiresInMinutes} minutes. If you didn't request a password reset, ignore this email.`,
@@ -120,7 +120,7 @@ export const verificationOtpTemplate = ({
   otp: string;
   expiresInMinutes?: number;
 }) => ({
-  subject: "Your verification code — SHOP PULSE",
+  subject: "Your verification code — completeme",
   html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 32px; border-radius: 8px;">
       <h2 style="color: #1a1a2e;">Verify your email</h2>
@@ -141,9 +141,9 @@ export const verificationOtpTemplate = ({
 
       <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
       <p style="color: #aaa; font-size: 12px;">
-        If you didn't create a SHOP PULSE account, you can safely ignore this email.
+        If you didn't create a completeme account, you can safely ignore this email.
       </p>
-      <p style="color: #aaa; font-size: 12px;">— The SHOP PULSE Team</p>
+      <p style="color: #aaa; font-size: 12px;">— The completeme Team</p>
     </div>
   `,
   text: `Verify your email\n\nHi ${username},\n\nYour verification code is: ${otp}\n\nExpires in ${expiresInMinutes} minutes.`,

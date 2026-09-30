@@ -1,10 +1,11 @@
-# Shop Pulse Backend API
+# completeme Backend API
 
 A high-performance, modular e-commerce backend built with **Node.js**, **Express 5**, **TypeScript**, **Prisma ORM**, **PostgreSQL**, and **Better Auth**.
 
 ---
 
 ## Table of Contents
+
 - [Interactive API Documentation (Swagger)](#interactive-api-documentation-swagger)
 - [Test Credentials](#test-credentials)
 - [Test Coupons](#test-coupons)
@@ -31,7 +32,7 @@ A high-performance, modular e-commerce backend built with **Node.js**, **Express
 
 ## Interactive API Documentation (Swagger)
 
-Shop Pulse provides an interactive OpenAPI 3.1 Swagger UI documentation combining all Better Auth identity routes and custom e-commerce service endpoints.
+completeme provides an interactive OpenAPI 3.1 Swagger UI documentation combining all Better Auth identity routes and custom e-commerce service endpoints.
 
 - **Swagger UI Interactive Explorer:** [http://localhost:5000/api-docs](http://localhost:5000/api-docs)
 - **OpenAPI 3.1 JSON Specification:** [http://localhost:5000/api-docs.json](http://localhost:5000/api-docs.json)
@@ -47,13 +48,13 @@ The database can be seeded with pre-configured accounts across all system roles 
 
 > **Default Password for All Seed Accounts:** `Password123!`
 
-| Role | Email | Name | Associated Entity / Profile | Access Scope |
-| :--- | :--- | :--- | :--- | :--- |
-| **ADMIN** | `admin@shoppulse.com` | System Admin | System Administrator | Full platform control (catalog, orders, vendors, payments, shipments, coupons, audits) |
-| **VENDOR** | `marcus@auratech.com` | Marcus Vance | **Aura Tech Global** (`aura-tech-global`) | Manage products, variants, images, stock, inventory transactions, and vendor profile |
-| **VENDOR** | `elena@velvetvine.com` | Elena Rostova | **Velvet & Vine Boutique** (`velvet-and-vine`) | Manage boutique apparel, lifestyle products, and vendor profile |
-| **CUSTOMER** | `lucas.vance@example.com` | Lucas Vance | Pre-seeded with Oregon address, cart, wishlist, and completed order | Place orders, manage cart/wishlist, write reviews, maintain address book |
-| **CUSTOMER** | `sophia.m@example.com` | Sophia Martinez | Pre-seeded with SF address, reviews, and active cart items | Place orders, manage cart/wishlist, write reviews, maintain address book |
+| Role         | Email                     | Name            | Associated Entity / Profile                                         | Access Scope                                                                           |
+| :----------- | :------------------------ | :-------------- | :------------------------------------------------------------------ | :------------------------------------------------------------------------------------- |
+| **ADMIN**    | `admin@completeme.com`    | System Admin    | System Administrator                                                | Full platform control (catalog, orders, vendors, payments, shipments, coupons, audits) |
+| **VENDOR**   | `marcus@auratech.com`     | Marcus Vance    | **Aura Tech Global** (`aura-tech-global`)                           | Manage products, variants, images, stock, inventory transactions, and vendor profile   |
+| **VENDOR**   | `elena@velvetvine.com`    | Elena Rostova   | **Velvet & Vine Boutique** (`velvet-and-vine`)                      | Manage boutique apparel, lifestyle products, and vendor profile                        |
+| **CUSTOMER** | `lucas.vance@example.com` | Lucas Vance     | Pre-seeded with Oregon address, cart, wishlist, and completed order | Place orders, manage cart/wishlist, write reviews, maintain address book               |
+| **CUSTOMER** | `sophia.m@example.com`    | Sophia Martinez | Pre-seeded with SF address, reviews, and active cart items          | Place orders, manage cart/wishlist, write reviews, maintain address book               |
 
 ---
 
@@ -61,17 +62,17 @@ The database can be seeded with pre-configured accounts across all system roles 
 
 Pre-configured discount coupons available for testing order checkout and discount calculations:
 
-| Coupon Code | Discount Type | Value | Min. Order Total | Max. Discount Limit | Status |
-| :--- | :--- | :---: | :---: | :---: | :--- |
-| `SUMMER20` | `PERCENTAGE` | **20%** | $50.00 | $100.00 | Active |
-| `PULSE100` | `FIXED` | **$100.00** | $500.00 | — | Active |
-| `EXPIRED30` | `PERCENTAGE` | **30%** | $30.00 | $50.00 | Expired (Validation test) |
+| Coupon Code | Discount Type |    Value    | Min. Order Total | Max. Discount Limit | Status                    |
+| :---------- | :------------ | :---------: | :--------------: | :-----------------: | :------------------------ |
+| `SUMMER20`  | `PERCENTAGE`  |   **20%**   |      $50.00      |       $100.00       | Active                    |
+| `PULSE100`  | `FIXED`       | **$100.00** |     $500.00      |          —          | Active                    |
+| `EXPIRED30` | `PERCENTAGE`  |   **30%**   |      $30.00      |       $50.00        | Expired (Validation test) |
 
 ---
 
 ## Authentication & Authorization
 
-Shop Pulse uses **Better Auth** with role-based access control (RBAC).
+completeme uses **Better Auth** with role-based access control (RBAC).
 
 ### How to Authenticate Requests
 
@@ -100,14 +101,14 @@ All custom business endpoints are prefixed with `/api`.
 
 Powered by Better Auth engine:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/sign-up/email` | Public | Register a new user account with `name`, `email`, and `password`. |
-| `POST` | `/api/auth/sign-in/email` | Public | Authenticate user with email and password; returns session token & cookie. |
-| `POST` | `/api/auth/sign-out` | Authenticated | Terminate the current session and invalidate cookies/tokens. |
-| `GET` | `/api/auth/get-session` | Authenticated | Retrieve current session metadata and logged-in user profile with role. |
-| `POST` | `/api/auth/two-factor/enable` | Authenticated | Enable two-factor authentication (TOTP/SMS). |
-| `POST` | `/api/auth/two-factor/verify` | Authenticated | Verify 2FA one-time code during setup or login challenge. |
+| Method | Endpoint                      | Access        | Description                                                                |
+| :----- | :---------------------------- | :------------ | :------------------------------------------------------------------------- |
+| `POST` | `/api/auth/sign-up/email`     | Public        | Register a new user account with `name`, `email`, and `password`.          |
+| `POST` | `/api/auth/sign-in/email`     | Public        | Authenticate user with email and password; returns session token & cookie. |
+| `POST` | `/api/auth/sign-out`          | Authenticated | Terminate the current session and invalidate cookies/tokens.               |
+| `GET`  | `/api/auth/get-session`       | Authenticated | Retrieve current session metadata and logged-in user profile with role.    |
+| `POST` | `/api/auth/two-factor/enable` | Authenticated | Enable two-factor authentication (TOTP/SMS).                               |
+| `POST` | `/api/auth/two-factor/verify` | Authenticated | Verify 2FA one-time code during setup or login challenge.                  |
 
 ---
 
@@ -115,19 +116,19 @@ Powered by Better Auth engine:
 
 Manage product catalog, multi-SKU variants, image galleries, and tags:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/products` | Public | List products with pagination, search, sorting, category/brand filters, and price range. |
-| `GET` | `/api/products/:slug` | Public | Fetch product details by unique slug (includes variants, images, brand, category, tags). |
-| `GET` | `/api/products/id/:id` | Public | Fetch product details by ID. |
-| `POST` | `/api/products` | `ADMIN`, `VENDOR` | Create a new product. Supports multipart image file uploads (`images` field, max 10). |
-| `PATCH` | `/api/products/:id` | `ADMIN`, `VENDOR` | Update product details, specifications, metadata, or upload additional images. |
-| `DELETE` | `/api/products/:id` | `ADMIN`, `VENDOR` | Soft delete / remove product from catalog. |
-| `POST` | `/api/products/:id/variants` | `ADMIN`, `VENDOR` | Add a new SKU variant (price, compareAtPrice, stockQuantity, weight, attributes JSON). |
-| `PATCH` | `/api/products/variants/:variantId` | `ADMIN`, `VENDOR` | Update an existing SKU variant's inventory, price, or attributes. |
-| `DELETE` | `/api/products/variants/:variantId` | `ADMIN`, `VENDOR` | Delete an existing product SKU variant. |
-| `POST` | `/api/products/:id/tags` | `ADMIN`, `VENDOR` | Attach a tag to a product (`tagId`). |
-| `DELETE` | `/api/products/:id/tags` | `ADMIN`, `VENDOR` | Remove a tag from a product (`tagId`). |
+| Method   | Endpoint                            | Access            | Description                                                                              |
+| :------- | :---------------------------------- | :---------------- | :--------------------------------------------------------------------------------------- |
+| `GET`    | `/api/products`                     | Public            | List products with pagination, search, sorting, category/brand filters, and price range. |
+| `GET`    | `/api/products/:slug`               | Public            | Fetch product details by unique slug (includes variants, images, brand, category, tags). |
+| `GET`    | `/api/products/id/:id`              | Public            | Fetch product details by ID.                                                             |
+| `POST`   | `/api/products`                     | `ADMIN`, `VENDOR` | Create a new product. Supports multipart image file uploads (`images` field, max 10).    |
+| `PATCH`  | `/api/products/:id`                 | `ADMIN`, `VENDOR` | Update product details, specifications, metadata, or upload additional images.           |
+| `DELETE` | `/api/products/:id`                 | `ADMIN`, `VENDOR` | Soft delete / remove product from catalog.                                               |
+| `POST`   | `/api/products/:id/variants`        | `ADMIN`, `VENDOR` | Add a new SKU variant (price, compareAtPrice, stockQuantity, weight, attributes JSON).   |
+| `PATCH`  | `/api/products/variants/:variantId` | `ADMIN`, `VENDOR` | Update an existing SKU variant's inventory, price, or attributes.                        |
+| `DELETE` | `/api/products/variants/:variantId` | `ADMIN`, `VENDOR` | Delete an existing product SKU variant.                                                  |
+| `POST`   | `/api/products/:id/tags`            | `ADMIN`, `VENDOR` | Attach a tag to a product (`tagId`).                                                     |
+| `DELETE` | `/api/products/:id/tags`            | `ADMIN`, `VENDOR` | Remove a tag from a product (`tagId`).                                                   |
 
 ---
 
@@ -135,14 +136,14 @@ Manage product catalog, multi-SKU variants, image galleries, and tags:
 
 Hierarchical catalog classification:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/categories` | Public | List all categories with subcategory hierarchy and product counts. |
-| `GET` | `/api/categories/:slug` | Public | Get single category by slug. |
-| `GET` | `/api/categories/id/:id` | Public | Get single category by ID. |
-| `POST` | `/api/categories` | `ADMIN` | Create category (supports `parentId` for nesting and single `image` upload). |
-| `PATCH` | `/api/categories/:id` | `ADMIN` | Update category name, slug, description, parent, or image. |
-| `DELETE` | `/api/categories/:id` | `ADMIN` | Delete category. |
+| Method   | Endpoint                 | Access  | Description                                                                  |
+| :------- | :----------------------- | :------ | :--------------------------------------------------------------------------- |
+| `GET`    | `/api/categories`        | Public  | List all categories with subcategory hierarchy and product counts.           |
+| `GET`    | `/api/categories/:slug`  | Public  | Get single category by slug.                                                 |
+| `GET`    | `/api/categories/id/:id` | Public  | Get single category by ID.                                                   |
+| `POST`   | `/api/categories`        | `ADMIN` | Create category (supports `parentId` for nesting and single `image` upload). |
+| `PATCH`  | `/api/categories/:id`    | `ADMIN` | Update category name, slug, description, parent, or image.                   |
+| `DELETE` | `/api/categories/:id`    | `ADMIN` | Delete category.                                                             |
 
 ---
 
@@ -150,13 +151,13 @@ Hierarchical catalog classification:
 
 Manufacturer and brand catalog management:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/brands` | Public | List all active brands. |
-| `GET` | `/api/brands/:slug` | Public | Get brand by slug with associated products. |
-| `POST` | `/api/brands` | `ADMIN` | Create a new brand (`name`, `slug`, `description`, `logoUrl`). |
-| `PATCH` | `/api/brands/:id` | `ADMIN` | Update brand information. |
-| `DELETE` | `/api/brands/:id` | `ADMIN` | Delete brand. |
+| Method   | Endpoint            | Access  | Description                                                    |
+| :------- | :------------------ | :------ | :------------------------------------------------------------- |
+| `GET`    | `/api/brands`       | Public  | List all active brands.                                        |
+| `GET`    | `/api/brands/:slug` | Public  | Get brand by slug with associated products.                    |
+| `POST`   | `/api/brands`       | `ADMIN` | Create a new brand (`name`, `slug`, `description`, `logoUrl`). |
+| `PATCH`  | `/api/brands/:id`   | `ADMIN` | Update brand information.                                      |
+| `DELETE` | `/api/brands/:id`   | `ADMIN` | Delete brand.                                                  |
 
 ---
 
@@ -164,17 +165,17 @@ Manufacturer and brand catalog management:
 
 Curated product sets (e.g. Featured, Summer Deals, New Arrivals):
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/collections` | Public | List all active collections. |
-| `GET` | `/api/collections/:slug` | Public | Get collection by slug with linked products. |
-| `GET` | `/api/collections/id/:id` | Public | Get collection by ID. |
-| `POST` | `/api/collections` | `ADMIN` | Create a new collection (`name`, `slug`, `description`, `startDate`, `endDate`, `image`). |
-| `PATCH` | `/api/collections/:id` | `ADMIN` | Update collection details. |
-| `DELETE` | `/api/collections/:id` | `ADMIN` | Delete collection. |
-| `POST` | `/api/collections/:id/products` | `ADMIN` | Add products to collection (`productIds: string[]`). |
-| `DELETE` | `/api/collections/:id/products` | `ADMIN` | Remove products from collection (`productIds: string[]`). |
-| `PATCH` | `/api/collections/:id/products/sort`| `ADMIN` | Reorder products inside collection (`items: { productId, sortOrder }[]`). |
+| Method   | Endpoint                             | Access  | Description                                                                               |
+| :------- | :----------------------------------- | :------ | :---------------------------------------------------------------------------------------- |
+| `GET`    | `/api/collections`                   | Public  | List all active collections.                                                              |
+| `GET`    | `/api/collections/:slug`             | Public  | Get collection by slug with linked products.                                              |
+| `GET`    | `/api/collections/id/:id`            | Public  | Get collection by ID.                                                                     |
+| `POST`   | `/api/collections`                   | `ADMIN` | Create a new collection (`name`, `slug`, `description`, `startDate`, `endDate`, `image`). |
+| `PATCH`  | `/api/collections/:id`               | `ADMIN` | Update collection details.                                                                |
+| `DELETE` | `/api/collections/:id`               | `ADMIN` | Delete collection.                                                                        |
+| `POST`   | `/api/collections/:id/products`      | `ADMIN` | Add products to collection (`productIds: string[]`).                                      |
+| `DELETE` | `/api/collections/:id/products`      | `ADMIN` | Remove products from collection (`productIds: string[]`).                                 |
+| `PATCH`  | `/api/collections/:id/products/sort` | `ADMIN` | Reorder products inside collection (`items: { productId, sortOrder }[]`).                 |
 
 ---
 
@@ -182,14 +183,14 @@ Curated product sets (e.g. Featured, Summer Deals, New Arrivals):
 
 Descriptive keywords and merchandising badges:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/tags` | Public | List all available tags. |
-| `GET` | `/api/tags/:slug` | Public | Get tag by slug with associated products. |
-| `GET` | `/api/tags/id/:id` | Public | Get tag by ID. |
-| `POST` | `/api/tags` | `ADMIN` | Create a new tag (`name`, `slug`). |
-| `PATCH` | `/api/tags/:id` | `ADMIN` | Update tag name or slug. |
-| `DELETE` | `/api/tags/:id` | `ADMIN` | Delete tag. |
+| Method   | Endpoint           | Access  | Description                               |
+| :------- | :----------------- | :------ | :---------------------------------------- |
+| `GET`    | `/api/tags`        | Public  | List all available tags.                  |
+| `GET`    | `/api/tags/:slug`  | Public  | Get tag by slug with associated products. |
+| `GET`    | `/api/tags/id/:id` | Public  | Get tag by ID.                            |
+| `POST`   | `/api/tags`        | `ADMIN` | Create a new tag (`name`, `slug`).        |
+| `PATCH`  | `/api/tags/:id`    | `ADMIN` | Update tag name or slug.                  |
+| `DELETE` | `/api/tags/:id`    | `ADMIN` | Delete tag.                               |
 
 ---
 
@@ -197,14 +198,14 @@ Descriptive keywords and merchandising badges:
 
 User shopping cart management:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/cart` | Authenticated | Retrieve the authenticated user's cart items with product and variant details. |
-| `GET` | `/api/cart/summary` | Authenticated | Compute cart totals (item count, subtotal, estimated tax and shipping). |
-| `POST` | `/api/cart` | Authenticated | Add an item to cart (`variantId`, `quantity`). |
-| `PATCH` | `/api/cart/:variantId`| Authenticated | Update item quantity for a variant in cart (`quantity`). |
-| `DELETE` | `/api/cart/:variantId`| Authenticated | Remove specific item from cart. |
-| `DELETE` | `/api/cart` | Authenticated | Clear all items from cart. |
+| Method   | Endpoint               | Access        | Description                                                                    |
+| :------- | :--------------------- | :------------ | :----------------------------------------------------------------------------- |
+| `GET`    | `/api/cart`            | Authenticated | Retrieve the authenticated user's cart items with product and variant details. |
+| `GET`    | `/api/cart/summary`    | Authenticated | Compute cart totals (item count, subtotal, estimated tax and shipping).        |
+| `POST`   | `/api/cart`            | Authenticated | Add an item to cart (`variantId`, `quantity`).                                 |
+| `PATCH`  | `/api/cart/:variantId` | Authenticated | Update item quantity for a variant in cart (`quantity`).                       |
+| `DELETE` | `/api/cart/:variantId` | Authenticated | Remove specific item from cart.                                                |
+| `DELETE` | `/api/cart`            | Authenticated | Clear all items from cart.                                                     |
 
 ---
 
@@ -212,13 +213,13 @@ User shopping cart management:
 
 Saved favorite items:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/wishlist` | Authenticated | Get all items saved in the user's wishlist. |
-| `GET` | `/api/wishlist/check/:productId` | Authenticated | Check whether a specific product is currently saved in user's wishlist. |
-| `POST` | `/api/wishlist` | Authenticated | Add product to wishlist (`productId`). |
-| `DELETE` | `/api/wishlist/:productId` | Authenticated | Remove product from wishlist. |
-| `DELETE` | `/api/wishlist` | Authenticated | Clear entire wishlist. |
+| Method   | Endpoint                         | Access        | Description                                                             |
+| :------- | :------------------------------- | :------------ | :---------------------------------------------------------------------- |
+| `GET`    | `/api/wishlist`                  | Authenticated | Get all items saved in the user's wishlist.                             |
+| `GET`    | `/api/wishlist/check/:productId` | Authenticated | Check whether a specific product is currently saved in user's wishlist. |
+| `POST`   | `/api/wishlist`                  | Authenticated | Add product to wishlist (`productId`).                                  |
+| `DELETE` | `/api/wishlist/:productId`       | Authenticated | Remove product from wishlist.                                           |
+| `DELETE` | `/api/wishlist`                  | Authenticated | Clear entire wishlist.                                                  |
 
 ---
 
@@ -226,14 +227,14 @@ Saved favorite items:
 
 Order processing, status lifecycle, and order management:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/orders` | Authenticated | List orders. Customers see their own orders; Admins view all orders. |
-| `GET` | `/api/orders/stats` | `ADMIN` | Get high-level order statistics (revenue, total count, status breakdown). |
-| `GET` | `/api/orders/:id` | Authenticated | Get order details (items, addresses, payment status, shipment tracking). |
-| `POST` | `/api/orders` | Authenticated | Create a new order (`shippingAddressId`, `billingAddressId`, `items`, `couponCode`). |
-| `PATCH` | `/api/orders/:id` | `ADMIN`, `VENDOR` | Update order status (`PENDING`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`). |
-| `POST` | `/api/orders/:id/cancel` | Authenticated | Cancel order (eligible before shipment). |
+| Method  | Endpoint                 | Access            | Description                                                                          |
+| :------ | :----------------------- | :---------------- | :----------------------------------------------------------------------------------- |
+| `GET`   | `/api/orders`            | Authenticated     | List orders. Customers see their own orders; Admins view all orders.                 |
+| `GET`   | `/api/orders/stats`      | `ADMIN`           | Get high-level order statistics (revenue, total count, status breakdown).            |
+| `GET`   | `/api/orders/:id`        | Authenticated     | Get order details (items, addresses, payment status, shipment tracking).             |
+| `POST`  | `/api/orders`            | Authenticated     | Create a new order (`shippingAddressId`, `billingAddressId`, `items`, `couponCode`). |
+| `PATCH` | `/api/orders/:id`        | `ADMIN`, `VENDOR` | Update order status (`PENDING`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`).  |
+| `POST`  | `/api/orders/:id/cancel` | Authenticated     | Cancel order (eligible before shipment).                                             |
 
 ---
 
@@ -241,15 +242,15 @@ Order processing, status lifecycle, and order management:
 
 Promotion engine & coupon code validation:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/coupons/validate` | Authenticated | Validate coupon applicability against a given cart subtotal. Returns discount amount. |
-| `GET` | `/api/coupons` | `ADMIN` | List all coupons with usage statistics. |
-| `GET` | `/api/coupons/:code` | Public | Check coupon code validity and terms. |
-| `GET` | `/api/coupons/id/:id` | `ADMIN` | Get coupon by ID. |
-| `POST` | `/api/coupons` | `ADMIN` | Create coupon (`code`, `discountType`, `discountValue`, `minOrderAmount`, `maxDiscount`, `startDate`, `endDate`, `usageLimit`). |
-| `PATCH` | `/api/coupons/:id` | `ADMIN` | Update coupon terms or active status. |
-| `DELETE` | `/api/coupons/:id` | `ADMIN` | Delete coupon. |
+| Method   | Endpoint                | Access        | Description                                                                                                                     |
+| :------- | :---------------------- | :------------ | :------------------------------------------------------------------------------------------------------------------------------ |
+| `POST`   | `/api/coupons/validate` | Authenticated | Validate coupon applicability against a given cart subtotal. Returns discount amount.                                           |
+| `GET`    | `/api/coupons`          | `ADMIN`       | List all coupons with usage statistics.                                                                                         |
+| `GET`    | `/api/coupons/:code`    | Public        | Check coupon code validity and terms.                                                                                           |
+| `GET`    | `/api/coupons/id/:id`   | `ADMIN`       | Get coupon by ID.                                                                                                               |
+| `POST`   | `/api/coupons`          | `ADMIN`       | Create coupon (`code`, `discountType`, `discountValue`, `minOrderAmount`, `maxDiscount`, `startDate`, `endDate`, `usageLimit`). |
+| `PATCH`  | `/api/coupons/:id`      | `ADMIN`       | Update coupon terms or active status.                                                                                           |
+| `DELETE` | `/api/coupons/:id`      | `ADMIN`       | Delete coupon.                                                                                                                  |
 
 ---
 
@@ -257,14 +258,14 @@ Promotion engine & coupon code validation:
 
 Payment records and refund tracking:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/payments` | Authenticated | List payments for user's orders (or all payments for Admin). |
-| `GET` | `/api/payments/:id` | Authenticated | Get payment details by payment ID. |
-| `GET` | `/api/payments/transaction/:transactionId` | Authenticated | Look up payment by external transaction/gateway ID. |
-| `POST` | `/api/payments` | `ADMIN` | Record new payment (`orderId`, `amount`, `currency`, `provider`, `transactionId`, `status`). |
-| `PATCH` | `/api/payments/:id` | `ADMIN` | Update payment status (`PAID`, `REFUNDED`, `FAILED`). |
-| `DELETE` | `/api/payments/:id` | `ADMIN` | Delete payment record. |
+| Method   | Endpoint                                   | Access        | Description                                                                                  |
+| :------- | :----------------------------------------- | :------------ | :------------------------------------------------------------------------------------------- |
+| `GET`    | `/api/payments`                            | Authenticated | List payments for user's orders (or all payments for Admin).                                 |
+| `GET`    | `/api/payments/:id`                        | Authenticated | Get payment details by payment ID.                                                           |
+| `GET`    | `/api/payments/transaction/:transactionId` | Authenticated | Look up payment by external transaction/gateway ID.                                          |
+| `POST`   | `/api/payments`                            | `ADMIN`       | Record new payment (`orderId`, `amount`, `currency`, `provider`, `transactionId`, `status`). |
+| `PATCH`  | `/api/payments/:id`                        | `ADMIN`       | Update payment status (`PAID`, `REFUNDED`, `FAILED`).                                        |
+| `DELETE` | `/api/payments/:id`                        | `ADMIN`       | Delete payment record.                                                                       |
 
 ---
 
@@ -272,14 +273,14 @@ Payment records and refund tracking:
 
 Carrier fulfillment and tracking:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/shipments` | Authenticated | List shipments for user's orders (or all shipments for Admin). |
-| `GET` | `/api/shipments/:id` | Authenticated | Get shipment details by ID. |
-| `GET` | `/api/shipments/tracking/:trackingNumber` | Authenticated | Look up shipment status by carrier tracking number. |
-| `POST` | `/api/shipments` | `ADMIN` | Create shipment fulfillment record (`orderId`, `carrier`, `trackingNumber`, `estimatedDelivery`). |
-| `PATCH` | `/api/shipments/:id` | `ADMIN` | Update shipment tracking status (`LABEL_CREATED`, `IN_TRANSIT`, `OUT_FOR_DELIVERY`, `DELIVERED`). |
-| `DELETE` | `/api/shipments/:id` | `ADMIN` | Delete shipment record. |
+| Method   | Endpoint                                  | Access        | Description                                                                                       |
+| :------- | :---------------------------------------- | :------------ | :------------------------------------------------------------------------------------------------ |
+| `GET`    | `/api/shipments`                          | Authenticated | List shipments for user's orders (or all shipments for Admin).                                    |
+| `GET`    | `/api/shipments/:id`                      | Authenticated | Get shipment details by ID.                                                                       |
+| `GET`    | `/api/shipments/tracking/:trackingNumber` | Authenticated | Look up shipment status by carrier tracking number.                                               |
+| `POST`   | `/api/shipments`                          | `ADMIN`       | Create shipment fulfillment record (`orderId`, `carrier`, `trackingNumber`, `estimatedDelivery`). |
+| `PATCH`  | `/api/shipments/:id`                      | `ADMIN`       | Update shipment tracking status (`LABEL_CREATED`, `IN_TRANSIT`, `OUT_FOR_DELIVERY`, `DELIVERED`). |
+| `DELETE` | `/api/shipments/:id`                      | `ADMIN`       | Delete shipment record.                                                                           |
 
 ---
 
@@ -287,15 +288,15 @@ Carrier fulfillment and tracking:
 
 Multi-vendor storefront management:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/vendors` | Public | List all active vendor store profiles. |
-| `GET` | `/api/vendors/me` | Authenticated | Get currently authenticated vendor's own profile. |
-| `GET` | `/api/vendors/:slug` | Public | Get public vendor store page by slug. |
-| `GET` | `/api/vendors/id/:id` | Public | Get vendor profile by ID. |
-| `POST` | `/api/vendors` | `ADMIN`, `VENDOR` | Register a new vendor profile (`companyName`, `slug`, `description`, `logo`). |
-| `PATCH` | `/api/vendors/:id` | `ADMIN`, `VENDOR` | Update vendor profile details or brand logo. |
-| `DELETE` | `/api/vendors/:id` | `ADMIN` | Deactivate / delete vendor profile. |
+| Method   | Endpoint              | Access            | Description                                                                   |
+| :------- | :-------------------- | :---------------- | :---------------------------------------------------------------------------- |
+| `GET`    | `/api/vendors`        | Public            | List all active vendor store profiles.                                        |
+| `GET`    | `/api/vendors/me`     | Authenticated     | Get currently authenticated vendor's own profile.                             |
+| `GET`    | `/api/vendors/:slug`  | Public            | Get public vendor store page by slug.                                         |
+| `GET`    | `/api/vendors/id/:id` | Public            | Get vendor profile by ID.                                                     |
+| `POST`   | `/api/vendors`        | `ADMIN`, `VENDOR` | Register a new vendor profile (`companyName`, `slug`, `description`, `logo`). |
+| `PATCH`  | `/api/vendors/:id`    | `ADMIN`, `VENDOR` | Update vendor profile details or brand logo.                                  |
+| `DELETE` | `/api/vendors/:id`    | `ADMIN`           | Deactivate / delete vendor profile.                                           |
 
 ---
 
@@ -303,14 +304,14 @@ Multi-vendor storefront management:
 
 Customer address book for shipping and billing:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/addresses` | Authenticated | List all saved addresses for current user. |
-| `GET` | `/api/addresses/:id` | Authenticated | Get address details by ID. |
-| `POST` | `/api/addresses` | Authenticated | Create a new address (`addressType`, `addressLine1`, `city`, `state`, `postalCode`, `country`, `isDefault`). |
-| `PATCH` | `/api/addresses/:id` | Authenticated | Update an existing address. |
-| `DELETE` | `/api/addresses/:id` | Authenticated | Delete an address. |
-| `PATCH` | `/api/addresses/:id/default` | Authenticated | Designate an address as default for its type (`SHIPPING` or `BILLING`). |
+| Method   | Endpoint                     | Access        | Description                                                                                                  |
+| :------- | :--------------------------- | :------------ | :----------------------------------------------------------------------------------------------------------- |
+| `GET`    | `/api/addresses`             | Authenticated | List all saved addresses for current user.                                                                   |
+| `GET`    | `/api/addresses/:id`         | Authenticated | Get address details by ID.                                                                                   |
+| `POST`   | `/api/addresses`             | Authenticated | Create a new address (`addressType`, `addressLine1`, `city`, `state`, `postalCode`, `country`, `isDefault`). |
+| `PATCH`  | `/api/addresses/:id`         | Authenticated | Update an existing address.                                                                                  |
+| `DELETE` | `/api/addresses/:id`         | Authenticated | Delete an address.                                                                                           |
+| `PATCH`  | `/api/addresses/:id/default` | Authenticated | Designate an address as default for its type (`SHIPPING` or `BILLING`).                                      |
 
 ---
 
@@ -318,13 +319,13 @@ Customer address book for shipping and billing:
 
 Product customer reviews and rating calculations:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/reviews` | Public | List approved reviews (supports filtering by `productId`). |
-| `GET` | `/api/reviews/:id` | Public | Get single review by ID. |
-| `POST` | `/api/reviews` | Authenticated | Post review for a product (`productId`, `rating` [1-5], `title`, `comment`). Auto-updates product average rating. |
-| `PATCH` | `/api/reviews/:id` | Authenticated | Edit user's own review. |
-| `DELETE` | `/api/reviews/:id` | Authenticated | Delete review. |
+| Method   | Endpoint           | Access        | Description                                                                                                       |
+| :------- | :----------------- | :------------ | :---------------------------------------------------------------------------------------------------------------- |
+| `GET`    | `/api/reviews`     | Public        | List approved reviews (supports filtering by `productId`).                                                        |
+| `GET`    | `/api/reviews/:id` | Public        | Get single review by ID.                                                                                          |
+| `POST`   | `/api/reviews`     | Authenticated | Post review for a product (`productId`, `rating` [1-5], `title`, `comment`). Auto-updates product average rating. |
+| `PATCH`  | `/api/reviews/:id` | Authenticated | Edit user's own review.                                                                                           |
+| `DELETE` | `/api/reviews/:id` | Authenticated | Delete review.                                                                                                    |
 
 ---
 
@@ -352,7 +353,7 @@ Create a `.env` file in `backend/`:
 
 ```env
 PORT=5000
-DATABASE_URL="postgresql://username:password@localhost:5432/shoppulse?schema=public"
+DATABASE_URL="postgresql://username:password@localhost:5432/completeme?schema=public"
 ALLOWED_ORIGINS="http://localhost:3000,http://localhost:5173"
 BETTER_AUTH_SECRET="your-secure-random-secret-key-at-least-32-chars"
 BETTER_AUTH_URL="http://localhost:5000"
@@ -378,6 +379,7 @@ npm run dev
 ```
 
 The server will start listening at:
+
 - **API Base:** [http://localhost:5000/api](http://localhost:5000/api)
 - **Swagger Documentation:** [http://localhost:5000/api-docs](http://localhost:5000/api-docs)
 - **OpenAPI 3.1 JSON:** [http://localhost:5000/api-docs.json](http://localhost:5000/api-docs.json)

@@ -10,7 +10,10 @@ import { initAlertCron } from "./cron/alert.cron";
 
 const app = express();
 app.set("trust proxy", 1);
-const port = process.env.PORT || 5000;
+if (!process.env.PORT) {
+  throw new Error("PORT environment variable must be defined");
+}
+const port = process.env.PORT;
 
 const allowedOrigins = Array.from(
   new Set([
@@ -18,8 +21,6 @@ const allowedOrigins = Array.from(
       ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim().replace(/\/$/, ""))
       : []),
     ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim().replace(/\/$/, "")] : []),
-    "https://shop-mocha-six.vercel.app",
-    "https://api-shoppulse.onrender.com",
   ]),
 );
 
@@ -71,6 +72,10 @@ app.get("/api-docs.json", async (req, res) => {
   res.json(schema);
 });
 
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.use("/api", routers);
 
 app.use(
@@ -91,7 +96,7 @@ app.use(
 );
 
 app.listen(port, () => {
-  console.log(`http://localhost:${port}`);
+  console.log(`Server running on port ${port}`);
   initAlertCron();
 });
 

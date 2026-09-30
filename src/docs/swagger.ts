@@ -39,30 +39,33 @@ export const generateOpenAPISchema = async () => {
     ]),
   );
 
-  const port = process.env.PORT || 5000;
+  const serverUrl =
+    process.env.BETTER_AUTH_URL ||
+    (process.env.PORT ? `http://localhost:${process.env.PORT}` : "");
 
   return {
     ...schema,
     openapi: schema.openapi || "3.1.0",
     info: {
-      title: "Shop Pulse E-Commerce API",
+      title: "Completeme API",
       version: "1.0.0",
       description:
-        "Comprehensive API reference for Shop Pulse — a full-featured e-commerce platform powering multi-vendor marketplaces, product catalog, cart & checkout, order tracking, payments, shipments, and customer account management.",
+        "Comprehensive API reference for completeme — a full-featured e-commerce platform powering multi-vendor marketplaces, product catalog, cart & checkout, order tracking, payments, shipments, and customer account management.",
       contact: {
-        name: "Shop Pulse API Support",
+        name: "Completeme API Support",
       },
     },
     servers: [
       {
-        url: `http://localhost:${port}`,
-        description: "Local development server",
+        url: serverUrl,
+        description: "API server",
       },
     ],
     tags: [
       {
         name: "Auth",
-        description: "Authentication and account management endpoints powered by Better Auth",
+        description:
+          "Authentication and account management endpoints powered by Better Auth",
       },
       ...customTags,
     ],
@@ -78,13 +81,15 @@ export const generateOpenAPISchema = async () => {
           type: "http",
           scheme: "bearer",
           bearerFormat: "JWT",
-          description: "Enter your session token as a Bearer token: Bearer <session_token>",
+          description:
+            "Enter your session token as a Bearer token: Bearer <session_token>",
         },
         cookieAuth: {
           type: "apiKey",
           in: "cookie",
           name: "better-auth.session_token",
-          description: "Better Auth session cookie sent automatically with browser credentials.",
+          description:
+            "Better Auth session cookie sent automatically with browser credentials.",
         },
       },
       schemas: {
@@ -102,12 +107,12 @@ router.get("/", async (req, res, next) => {
     const schema = await generateOpenAPISchema();
 
     const html = swaggerUi.generateHTML(schema, {
-      customSiteTitle: "Shop Pulse API Documentation",
+      customSiteTitle: "completeme API Documentation",
       customCss: `
         .topbar { background-color: #0f172a; padding: 12px 0; }
         .topbar-wrapper img { display: none; }
         .topbar-wrapper::after {
-          content: '⚡ Shop Pulse API Reference';
+          content: '⚡ completeme API Reference';
           color: #f8fafc;
           font-size: 1.4rem;
           font-weight: 700;

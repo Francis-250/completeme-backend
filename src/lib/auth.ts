@@ -10,7 +10,7 @@ import {
   twoFactor,
   username,
 } from "better-auth/plugins";
-import { sendEmail } from "./brevo";
+import { sendEmail } from "./mailer";
 import {
   resetPasswordOtpTemplate,
   resetPasswordTemplate,
@@ -21,21 +21,27 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
+  baseURL: process.env.BETTER_AUTH_URL,
   trustedOrigins: Array.from(
     new Set([
       ...(process.env.ALLOWED_ORIGINS
-        ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim().replace(/\/$/, ""))
+        ? process.env.ALLOWED_ORIGINS.split(",").map((o) =>
+            o.trim().replace(/\/$/, ""),
+          )
         : []),
-      ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.trim().replace(/\/$/, "")] : []),
-      "https://shop-mocha-six.vercel.app",
-      "https://api-shoppulse.onrender.com",
+      ...(process.env.FRONTEND_URL
+        ? [process.env.FRONTEND_URL.trim().replace(/\/$/, "")]
+        : []),
       ...(process.env.NODE_ENV !== "production"
         ? [
             "http://localhost:3000",
             "http://127.0.0.1:3000",
-            "http://localhost:5000",
-            "http://127.0.0.1:5000",
+            ...(process.env.PORT
+              ? [
+                  `http://localhost:${process.env.PORT}`,
+                  `http://127.0.0.1:${process.env.PORT}`,
+                ]
+              : []),
           ]
         : []),
     ]),
@@ -100,7 +106,7 @@ export const auth = betterAuth({
               otp,
               expiresInMinutes: 5,
             }),
-            subject: "Your sign-in code — SHOP PULSE",
+            subject: "Your sign-in code — completeme",
           });
         } else if (type === "email-verification") {
           await sendEmail({
@@ -110,7 +116,7 @@ export const auth = betterAuth({
               otp,
               expiresInMinutes: 5,
             }),
-            subject: "Verify your email — SHOP PULSE",
+            subject: "Verify your email — completeme",
           });
         } else if (type === "forget-password") {
           await sendEmail({
@@ -120,7 +126,7 @@ export const auth = betterAuth({
               otp,
               expiresInMinutes: 20,
             }),
-            subject: "Reset your password code — SHOP PULSE",
+            subject: "Reset your password code — completeme",
           });
         }
       },

@@ -3,7 +3,7 @@ import { prisma } from "../src/lib/prisma";
 import { hashPassword } from "better-auth/crypto";
 
 async function main() {
-  console.log("🌱 Starting database seeding for Shop Pulse...");
+  console.log("🌱 Starting database seeding for completeme...");
 
   // 1. Clean up database in reverse foreign key order
   console.log("🧹 Cleaning up existing records...");
@@ -42,14 +42,17 @@ async function main() {
   const defaultHashedPassword = await hashPassword("Password123!");
 
   // 2. Seed Users
-  console.log("👤 Seeding Users, Accounts, Sessions, 2FA, and Verifications...");
+  console.log(
+    "👤 Seeding Users, Accounts, Sessions, 2FA, and Verifications...",
+  );
   const adminUser = await prisma.user.create({
     data: {
       id: "usr-admin-0001",
       name: "Francois Admin",
-      email: "admin@shoppulse.com",
+      email: "admin@completeme.com",
       emailVerified: true,
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+      image:
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
       phoneNumber: "+15551001001",
       phoneNumberVerified: true,
       username: "admin_francois",
@@ -65,7 +68,8 @@ async function main() {
       name: "Marcus Aurelius",
       email: "marcus@auratech.com",
       emailVerified: true,
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+      image:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
       phoneNumber: "+15552002002",
       phoneNumberVerified: true,
       username: "marcus_auratech",
@@ -80,7 +84,8 @@ async function main() {
       name: "Elena Rostova",
       email: "elena@velvetvine.com",
       emailVerified: true,
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+      image:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
       phoneNumber: "+15553003003",
       phoneNumberVerified: true,
       username: "elena_velvet",
@@ -95,7 +100,8 @@ async function main() {
       name: "Lucas Vance",
       email: "lucas.vance@example.com",
       emailVerified: true,
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+      image:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
       phoneNumber: "+15554004004",
       phoneNumberVerified: true,
       username: "lucas_vance",
@@ -110,7 +116,8 @@ async function main() {
       name: "Sophia Martinez",
       email: "sophia.m@example.com",
       emailVerified: true,
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+      image:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
       phoneNumber: "+15555005005",
       phoneNumberVerified: true,
       username: "sophia_m",
@@ -120,7 +127,13 @@ async function main() {
   });
 
   // 3. Seed Accounts (Better Auth credential logins)
-  const users = [adminUser, vendorUser1, vendorUser2, customerUser1, customerUser2];
+  const users = [
+    adminUser,
+    vendorUser1,
+    vendorUser2,
+    customerUser1,
+    customerUser2,
+  ];
   for (const u of users) {
     await prisma.account.create({
       data: {
@@ -162,7 +175,11 @@ async function main() {
       id: "2fa-admin-0001",
       userId: adminUser.id,
       secret: "JBSWY3DPEHPK3PXP",
-      backupCodes: JSON.stringify(["CODE-1234-5678", "CODE-9876-5432", "CODE-4321-8765"]),
+      backupCodes: JSON.stringify([
+        "CODE-1234-5678",
+        "CODE-9876-5432",
+        "CODE-4321-8765",
+      ]),
       verified: true,
       failedVerificationCount: 0,
     },
@@ -172,7 +189,7 @@ async function main() {
   await prisma.verification.create({
     data: {
       id: "verif-welcome-0001",
-      identifier: "verify_admin@shoppulse.com",
+      identifier: "verify_admin@completeme.com",
       value: "847291",
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     },
@@ -186,8 +203,10 @@ async function main() {
       userId: vendorUser1.id,
       companyName: "Aura Tech Global",
       slug: "aura-tech-global",
-      description: "Premier distributor of cutting-edge smart electronics, audio gear, and personal tech.",
-      logoUrl: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=400&q=80",
+      description:
+        "Premier distributor of cutting-edge smart electronics, audio gear, and personal tech.",
+      logoUrl:
+        "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=400&q=80",
       isActive: true,
     },
   });
@@ -198,8 +217,10 @@ async function main() {
       userId: vendorUser2.id,
       companyName: "Velvet & Vine Boutique",
       slug: "velvet-and-vine",
-      description: "Artisan apparel, outdoor lifestyle essentials, and sustainable handcrafted accessories.",
-      logoUrl: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=400&q=80",
+      description:
+        "Artisan apparel, outdoor lifestyle essentials, and sustainable handcrafted accessories.",
+      logoUrl:
+        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=400&q=80",
       isActive: true,
     },
   });
@@ -258,8 +279,10 @@ async function main() {
       id: "brand-apple",
       name: "Apple",
       slug: "apple",
-      description: "Pioneering premium consumer electronics, personal computers, and mobile technology.",
-      logoUrl: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=300&q=80",
+      description:
+        "Pioneering premium consumer electronics, personal computers, and mobile technology.",
+      logoUrl:
+        "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=300&q=80",
     },
   });
 
@@ -268,8 +291,10 @@ async function main() {
       id: "brand-sony",
       name: "Sony",
       slug: "sony",
-      description: "World-class leader in acoustic engineering, imaging sensors, and audiovisual equipment.",
-      logoUrl: "https://images.unsplash.com/photo-1526738549149-8e07eca6c147?auto=format&fit=crop&w=300&q=80",
+      description:
+        "World-class leader in acoustic engineering, imaging sensors, and audiovisual equipment.",
+      logoUrl:
+        "https://images.unsplash.com/photo-1526738549149-8e07eca6c147?auto=format&fit=crop&w=300&q=80",
     },
   });
 
@@ -278,8 +303,10 @@ async function main() {
       id: "brand-nike",
       name: "Nike",
       slug: "nike",
-      description: "Iconic athletic footwear, innovative sportswear, and performance gear.",
-      logoUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=300&q=80",
+      description:
+        "Iconic athletic footwear, innovative sportswear, and performance gear.",
+      logoUrl:
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=300&q=80",
     },
   });
 
@@ -288,8 +315,10 @@ async function main() {
       id: "brand-samsung",
       name: "Samsung",
       slug: "samsung",
-      description: "Global innovator in displays, high-end smartphones, and digital home ecosystems.",
-      logoUrl: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=300&q=80",
+      description:
+        "Global innovator in displays, high-end smartphones, and digital home ecosystems.",
+      logoUrl:
+        "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=300&q=80",
     },
   });
 
@@ -298,8 +327,10 @@ async function main() {
       id: "brand-bose",
       name: "Bose",
       slug: "bose",
-      description: "Renowned pioneer of active noise-cancelling headphones and immersive personal audio.",
-      logoUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80",
+      description:
+        "Renowned pioneer of active noise-cancelling headphones and immersive personal audio.",
+      logoUrl:
+        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80",
     },
   });
 
@@ -308,8 +339,10 @@ async function main() {
       id: "brand-patagonia",
       name: "Patagonia",
       slug: "patagonia",
-      description: "Environmentally responsible outdoor clothing, insulated jackets, and adventure apparel.",
-      logoUrl: "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=300&q=80",
+      description:
+        "Environmentally responsible outdoor clothing, insulated jackets, and adventure apparel.",
+      logoUrl:
+        "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=300&q=80",
     },
   });
 
@@ -320,7 +353,8 @@ async function main() {
       id: "cat-electronics",
       name: "Electronics",
       slug: "electronics",
-      description: "Consumer tech, audio devices, computing, and smart accessories.",
+      description:
+        "Consumer tech, audio devices, computing, and smart accessories.",
     },
   });
 
@@ -330,7 +364,8 @@ async function main() {
       name: "Audio & Headphones",
       slug: "audio-headphones",
       parentId: catElectronics.id,
-      description: "Wireless earbuds, studio monitors, and noise-cancelling headphones.",
+      description:
+        "Wireless earbuds, studio monitors, and noise-cancelling headphones.",
     },
   });
 
@@ -340,7 +375,8 @@ async function main() {
       name: "Smartphones & Tablets",
       slug: "smartphones-tablets",
       parentId: catElectronics.id,
-      description: "Flagship smartphones, cellular wearables, and mobile computing.",
+      description:
+        "Flagship smartphones, cellular wearables, and mobile computing.",
     },
   });
 
@@ -349,7 +385,8 @@ async function main() {
       id: "cat-fashion",
       name: "Fashion & Apparel",
       slug: "fashion-apparel",
-      description: "Trending streetwear, athletic apparel, and designer outerwear.",
+      description:
+        "Trending streetwear, athletic apparel, and designer outerwear.",
     },
   });
 
@@ -368,7 +405,8 @@ async function main() {
       id: "cat-home",
       name: "Home & Living",
       slug: "home-living",
-      description: "Artisan kitchenware, interior lifestyle decor, and smart living appliances.",
+      description:
+        "Artisan kitchenware, interior lifestyle decor, and smart living appliances.",
     },
   });
 
@@ -397,8 +435,10 @@ async function main() {
       id: "col-tech-prodigy",
       name: "Tech Prodigy 2026",
       slug: "tech-prodigy-2026",
-      description: "Hand-curated pinnacle of wireless fidelity, personal computing, and mobile power.",
-      imageUrl: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
+      description:
+        "Hand-curated pinnacle of wireless fidelity, personal computing, and mobile power.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
       isActive: true,
       startDate: new Date("2026-01-01"),
       endDate: new Date("2026-12-31"),
@@ -410,8 +450,10 @@ async function main() {
       id: "col-summer-essentials",
       name: "Summer Performance Essentials",
       slug: "summer-performance-essentials",
-      description: "Lightweight, breathable, and high-performance gear for active lifestyles.",
-      imageUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+      description:
+        "Lightweight, breathable, and high-performance gear for active lifestyles.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
       isActive: true,
       startDate: new Date("2026-05-01"),
       endDate: new Date("2026-09-30"),
@@ -427,10 +469,12 @@ async function main() {
       id: "prod-iphone-16-pro",
       name: "iPhone 16 Pro Max",
       slug: "iphone-16-pro-max",
-      description: "Forged in Grade 5 titanium with the A18 Pro chip, camera control button, and all-day battery life.",
+      description:
+        "Forged in Grade 5 titanium with the A18 Pro chip, camera control button, and all-day battery life.",
       shortDescription: "Titanium design, 48MP Fusion camera, A18 Pro silicon.",
-      metaTitle: "Buy iPhone 16 Pro Max | Shop Pulse",
-      metaDescription: "Experience the fastest smartphone with titanium construction and Pro camera system.",
+      metaTitle: "Buy iPhone 16 Pro Max | completeme",
+      metaDescription:
+        "Experience the fastest smartphone with titanium construction and Pro camera system.",
       categoryId: catSmartphones.id,
       brandId: brandApple.id,
       vendorId: vendorProfile1.id,
@@ -509,10 +553,13 @@ async function main() {
       id: "prod-sony-wh1000xm5",
       name: "Sony WH-1000XM5 Wireless Headphones",
       slug: "sony-wh-1000xm5-wireless-headphones",
-      description: "Industry-leading noise cancellation powered by two processors and eight microphones with Auto NC Optimizer.",
-      shortDescription: "Flagship wireless ANC over-ear headphones with 30h battery.",
+      description:
+        "Industry-leading noise cancellation powered by two processors and eight microphones with Auto NC Optimizer.",
+      shortDescription:
+        "Flagship wireless ANC over-ear headphones with 30h battery.",
       metaTitle: "Sony WH-1000XM5 Noise Cancelling Headphones",
-      metaDescription: "Immerse yourself in pure sound with Sony WH-1000XM5 wireless ANC headphones.",
+      metaDescription:
+        "Immerse yourself in pure sound with Sony WH-1000XM5 wireless ANC headphones.",
       categoryId: catAudio.id,
       brandId: brandSony.id,
       vendorId: vendorProfile1.id,
@@ -591,10 +638,13 @@ async function main() {
       id: "prod-nike-airmax-pulse",
       name: "Nike Air Max Pulse Sneakers",
       slug: "nike-air-max-pulse-sneakers",
-      description: "Pulling inspiration from the London music scene, the Air Max Pulse brings an underground touch to the iconic Air Max line.",
-      shortDescription: "Next-generation point-loaded Air cushioning for responsive comfort.",
+      description:
+        "Pulling inspiration from the London music scene, the Air Max Pulse brings an underground touch to the iconic Air Max line.",
+      shortDescription:
+        "Next-generation point-loaded Air cushioning for responsive comfort.",
       metaTitle: "Nike Air Max Pulse Lifestyle Sneakers",
-      metaDescription: "Elevate your stride with Nike Air Max Pulse athletic lifestyle sneakers.",
+      metaDescription:
+        "Elevate your stride with Nike Air Max Pulse athletic lifestyle sneakers.",
       categoryId: catFootwear.id,
       brandId: brandNike.id,
       vendorId: vendorProfile2.id,
@@ -673,10 +723,13 @@ async function main() {
       id: "prod-bose-qc-ultra",
       name: "Bose QuietComfort Ultra Earbuds",
       slug: "bose-quietcomfort-ultra-earbuds",
-      description: "Breakthrough spatialized audio for more immersive listening that makes your music feel more real than ever.",
-      shortDescription: "CustomTune noise cancellation with spatial immersive audio.",
+      description:
+        "Breakthrough spatialized audio for more immersive listening that makes your music feel more real than ever.",
+      shortDescription:
+        "CustomTune noise cancellation with spatial immersive audio.",
       metaTitle: "Bose QuietComfort Ultra True Wireless Earbuds",
-      metaDescription: "World-class quiet and tailored acoustics with Bose QC Ultra earbuds.",
+      metaDescription:
+        "World-class quiet and tailored acoustics with Bose QC Ultra earbuds.",
       categoryId: catAudio.id,
       brandId: brandBose.id,
       vendorId: vendorProfile1.id,
@@ -742,10 +795,13 @@ async function main() {
       id: "prod-patagonia-nano-puff",
       name: "Patagonia Nano Puff Insulated Jacket",
       slug: "patagonia-nano-puff-insulated-jacket",
-      description: "Warm, windproof, water-resistant—the Nano Puff Jacket uses incredibly lightweight and highly compressible 60-g PrimaLoft Gold Insulation.",
-      shortDescription: "100% recycled polyester shell with lightweight insulation.",
+      description:
+        "Warm, windproof, water-resistant—the Nano Puff Jacket uses incredibly lightweight and highly compressible 60-g PrimaLoft Gold Insulation.",
+      shortDescription:
+        "100% recycled polyester shell with lightweight insulation.",
       metaTitle: "Patagonia Nano Puff Jacket | Sustainable Outdoor Apparel",
-      metaDescription: "Stay warm in all elements with eco-friendly Patagonia Nano Puff jacket.",
+      metaDescription:
+        "Stay warm in all elements with eco-friendly Patagonia Nano Puff jacket.",
       categoryId: catFashion.id,
       brandId: brandPatagonia.id,
       vendorId: vendorProfile2.id,
@@ -822,11 +878,31 @@ async function main() {
   // 15. Seed Collection Products
   await prisma.collectionProduct.createMany({
     data: [
-      { collectionId: collectionTech.id, productId: prodIphone.id, sortOrder: 1 },
-      { collectionId: collectionTech.id, productId: prodSonyHeadphones.id, sortOrder: 2 },
-      { collectionId: collectionTech.id, productId: prodBoseEarbuds.id, sortOrder: 3 },
-      { collectionId: collectionSummer.id, productId: prodNikeSneakers.id, sortOrder: 1 },
-      { collectionId: collectionSummer.id, productId: prodPatagonia.id, sortOrder: 2 },
+      {
+        collectionId: collectionTech.id,
+        productId: prodIphone.id,
+        sortOrder: 1,
+      },
+      {
+        collectionId: collectionTech.id,
+        productId: prodSonyHeadphones.id,
+        sortOrder: 2,
+      },
+      {
+        collectionId: collectionTech.id,
+        productId: prodBoseEarbuds.id,
+        sortOrder: 3,
+      },
+      {
+        collectionId: collectionSummer.id,
+        productId: prodNikeSneakers.id,
+        sortOrder: 1,
+      },
+      {
+        collectionId: collectionSummer.id,
+        productId: prodPatagonia.id,
+        sortOrder: 2,
+      },
     ],
   });
 
@@ -1079,7 +1155,8 @@ async function main() {
         userId: customerUser1.id,
         rating: 5,
         title: "Phenomenal build quality and battery!",
-        comment: "The titanium finish feels incredible in hand and the battery easily lasts 1.5 days of heavy use.",
+        comment:
+          "The titanium finish feels incredible in hand and the battery easily lasts 1.5 days of heavy use.",
         isVerified: true,
         isApproved: true,
       },
@@ -1089,7 +1166,8 @@ async function main() {
         userId: customerUser2.id,
         rating: 5,
         title: "Best ANC on the market hands down",
-        comment: "Flies with me on long-haul flights. Blocks airplane engine drone like magic. Highly recommended!",
+        comment:
+          "Flies with me on long-haul flights. Blocks airplane engine drone like magic. Highly recommended!",
         isVerified: true,
         isApproved: true,
       },
@@ -1099,7 +1177,8 @@ async function main() {
         userId: customerUser1.id,
         rating: 4,
         title: "Super comfortable for all-day walking",
-        comment: "Very stylish and the air cushioning is soft. Runs slightly snug so consider half a size up.",
+        comment:
+          "Very stylish and the air cushioning is soft. Runs slightly snug so consider half a size up.",
         isVerified: true,
         isApproved: true,
       },
@@ -1116,7 +1195,7 @@ async function main() {
         action: "STORE_INIT",
         entity: "System",
         entityId: "system-root",
-        newValues: { message: "Shop Pulse seed data loaded successfully" },
+        newValues: { message: "completeme seed data loaded successfully" },
         ipAddress: "127.0.0.1",
       },
       {
@@ -1125,7 +1204,11 @@ async function main() {
         action: "PRODUCT_PUBLISH",
         entity: "Product",
         entityId: prodIphone.id,
-        newValues: { name: prodIphone.name, sku: varIphone256.sku, stock: varIphone256.stockQuantity },
+        newValues: {
+          name: prodIphone.name,
+          sku: varIphone256.sku,
+          stock: varIphone256.stockQuantity,
+        },
         ipAddress: "127.0.0.1",
       },
       {
@@ -1165,7 +1248,8 @@ async function main() {
       },
       {
         id: "post-0002",
-        title: "Curating a Minimalist Everyday Carry: What Deserves a Place in Your Pocket",
+        title:
+          "Curating a Minimalist Everyday Carry: What Deserves a Place in Your Pocket",
         slug: "minimalist-everyday-carry-essentials",
         excerpt:
           "From slim cardholders to compact multi-tools and high-precision wristwear, here is how intentional curation can declutter your day-to-day commute.",
@@ -1184,7 +1268,8 @@ async function main() {
       },
       {
         id: "post-0003",
-        title: "Smartwatch vs. Mechanical Watch: Bridging Utility and Timeless Craftsmanship",
+        title:
+          "Smartwatch vs. Mechanical Watch: Bridging Utility and Timeless Craftsmanship",
         slug: "smartwatch-vs-mechanical-watch-guide",
         excerpt:
           "Can modern haptic health tracking coexist with classic mechanical horology? We analyze when to sport digital intelligence and when to reach for automatic watchmaking.",
@@ -1203,7 +1288,8 @@ async function main() {
       },
       {
         id: "post-0004",
-        title: "Smart Shopper's Handbook: How to Spot Genuine Discounts vs. Inflated RRPs",
+        title:
+          "Smart Shopper's Handbook: How to Spot Genuine Discounts vs. Inflated RRPs",
         slug: "how-to-spot-genuine-tech-deals",
         excerpt:
           "Demystifying markdown tactics, seasonal price drops, and clearance cycles so you always get maximum value on every gadget and accessory.",
@@ -1222,7 +1308,8 @@ async function main() {
       },
       {
         id: "post-0005",
-        title: "Behind the Scenes: Our Commitment to Plastic-Free Delivery & Recycled Tech",
+        title:
+          "Behind the Scenes: Our Commitment to Plastic-Free Delivery & Recycled Tech",
         slug: "eco-conscious-packaging-and-circular-electronics",
         excerpt:
           "A deep dive into our warehouse sustainability initiatives, biodegradable cushioning, and repairable component certifications.",
@@ -1241,7 +1328,8 @@ async function main() {
       },
       {
         id: "post-0006",
-        title: "5 Proven Habits to Extend the Lifespan of Your Wireless Earbuds & Smart Devices",
+        title:
+          "5 Proven Habits to Extend the Lifespan of Your Wireless Earbuds & Smart Devices",
         slug: "preserving-battery-health-on-wearables",
         excerpt:
           "Stop degrading your lithium-ion cells prematurely. Simple charging rhythms and storage temperatures that keep batteries performing like new.",
@@ -1271,7 +1359,8 @@ async function main() {
         email: "david.n@example.com",
         orderNumber: "ORD-1002",
         subject: "order",
-        message: "Hello, I wanted to check if my order can be expedited for delivery before Friday afternoon. Thank you!",
+        message:
+          "Hello, I wanted to check if my order can be expedited for delivery before Friday afternoon. Thank you!",
         status: "PENDING",
       },
       {
@@ -1279,7 +1368,8 @@ async function main() {
         name: "Aline Umutoni",
         email: "aline.u@example.com",
         subject: "payment",
-        message: "Can I pay using MTN MoMo Pay directly at pickup, or should I dial the USSD code right after checkout?",
+        message:
+          "Can I pay using MTN MoMo Pay directly at pickup, or should I dial the USSD code right after checkout?",
         status: "RESOLVED",
       },
       {
@@ -1287,7 +1377,8 @@ async function main() {
         name: "Patrick Mugabo",
         email: "patrick.m@example.com",
         subject: "product",
-        message: "Do you offer international warranty coverage on the Sony WH-1000XM5 headphones?",
+        message:
+          "Do you offer international warranty coverage on the Sony WH-1000XM5 headphones?",
         status: "PENDING",
       },
     ],
@@ -1296,9 +1387,13 @@ async function main() {
   console.log("\n🎉 Database seeded successfully with all 29 models!");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("🔑 Default Seed User Accounts (Password: Password123!)");
-  console.log("  • Admin:    admin@shoppulse.com       (Role: ADMIN)");
-  console.log("  • Vendor 1: marcus@auratech.com       (Role: VENDOR - Aura Tech Global)");
-  console.log("  • Vendor 2: elena@velvetvine.com      (Role: VENDOR - Velvet & Vine)");
+  console.log("  • Admin:    admin@completeme.com       (Role: ADMIN)");
+  console.log(
+    "  • Vendor 1: marcus@auratech.com       (Role: VENDOR - Aura Tech Global)",
+  );
+  console.log(
+    "  • Vendor 2: elena@velvetvine.com      (Role: VENDOR - Velvet & Vine)",
+  );
   console.log("  • Customer: lucas.vance@example.com   (Role: CUSTOMER)");
   console.log("  • Customer: sophia.m@example.com      (Role: CUSTOMER)");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
