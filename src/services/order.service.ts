@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma";
 import { cartService } from "./cart.service";
 import { couponService } from "./coupon.service";
 import { notificationService } from "./notification.service";
+import { invalidateProductCaches } from "./product.service";
 
 export const orderService = {
   create: async (userId: string, data: CreateOrderData) => {
@@ -273,6 +274,18 @@ export const orderService = {
       });
     } catch {}
 
+    try {
+      const productIds = new Set<string>();
+      for (const item of order.orderItems) {
+        if (item.variant?.productId) productIds.add(item.variant.productId);
+      }
+      for (const pId of productIds) {
+        await invalidateProductCaches(pId);
+      }
+    } catch (e) {
+      console.error("Failed to invalidate product caches after order creation:", e);
+    }
+
     return order;
   },
 
@@ -458,6 +471,18 @@ export const orderService = {
           });
         }
       });
+
+      try {
+        const productIds = new Set<string>();
+        for (const item of order.orderItems) {
+          if (item.variant?.productId) productIds.add(item.variant.productId);
+        }
+        for (const pId of productIds) {
+          await invalidateProductCaches(pId);
+        }
+      } catch (e) {
+        console.error("Failed to invalidate product caches after order cancellation:", e);
+      }
     }
 
     return order;

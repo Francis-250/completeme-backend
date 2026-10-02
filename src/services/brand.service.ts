@@ -2,6 +2,18 @@ import { CreateBrandData, UpdateBrandData } from "../types/catalog.types";
 import { prisma } from "../lib/prisma";
 import { generateSlug } from "../utils/helpers";
 import { uploadImage } from "../utils/upload-image";
+import { getCache, setCache, delCache, delCachePattern } from "../lib/redis";
+
+async function invalidateBrandCaches(id?: string, slug?: string) {
+  const tasks = [
+    delCachePattern("brands:*"),
+    delCachePattern("brand:*"),
+    delCachePattern("products:list:*"),
+  ];
+  if (id) tasks.push(delCache(`brand:id:${id}`));
+  if (slug) tasks.push(delCache(`brand:slug:${slug}`));
+  await Promise.allSettled(tasks);
+}
 
 export const brandService = {
   create: async (data: CreateBrandData) => {
@@ -34,25 +46,48 @@ export const brandService = {
       },
     });
 
+    await invalidateBrandCaches(brand.id, slug);
+
     return brand;
   },
 
   getAll: async () => {
+    const cacheKey = "brands:all";
+    const cached = await getCache<any[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const brands = await prisma.brand.findMany({
       orderBy: {
         createdAt: "desc",
       },
     });
 
+    await setCache(cacheKey, brands, 1800);
+
     return brands;
   },
 
   getBySlug: async (slug: string) => {
+    const cacheKey = `brand:slug:${slug}`;
+    const cached = await getCache<any>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const brand = await prisma.brand.findUnique({
       where: {
         slug,
       },
     });
+
+    if (brand) {
+      await setCache(cacheKey, brand, 1800);
+      if (brand.id) {
+        await setCache(`brand:id:${brand.id}`, brand, 1800);
+      }
+    }
 
     return brand;
   },
@@ -114,6 +149,11 @@ export const brandService = {
       },
     });
 
+    await invalidateBrandCaches(existingBrand.id, existingBrand.slug);
+    if (slug && slug !== existingBrand.slug) {
+      await delCache(`brand:slug:${slug}`);
+    }
+
     return brand;
   },
 
@@ -133,6 +173,13 @@ export const brandService = {
         id,
       },
     });
+
+    await invalidateBrandCaches(id, existingBrand.slug);
+    await Promise.allSettled([
+      delCachePattern("brand:*"),
+      delCachePattern("brands:*"),
+      delCachePattern("products:list:*"),
+    ]);
 
     return brand;
   },

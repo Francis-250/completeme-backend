@@ -2,6 +2,22 @@ import { CreateCategoryData, UpdateCategoryData } from "../types/catalog.types";
 import { prisma } from "../lib/prisma";
 import { generateSlug } from "../utils/helpers";
 import { uploadImage } from "../utils/upload-image";
+import { getCache, setCache, delCache, delCachePattern } from "../lib/redis";
+
+async function invalidateCategoryCaches(id?: string, slug?: string) {
+  const tasks = [
+    delCachePattern("categories:*"),
+    delCachePattern("category:*"),
+    delCachePattern("products:list:*"),
+  ];
+  if (id) {
+    tasks.push(delCache(`category:id:${id}`));
+  }
+  if (slug) {
+    tasks.push(delCache(`category:slug:${slug}`));
+  }
+  await Promise.allSettled(tasks);
+}
 
 export const categoryService = {
   create: async (data: CreateCategoryData) => {
@@ -50,10 +66,18 @@ export const categoryService = {
       },
     });
 
+    await invalidateCategoryCaches(category.id, slug);
+
     return category;
   },
 
   getAll: async (includeChildren = false) => {
+    const cacheKey = `categories:all:${includeChildren}`;
+    const cached = await getCache<any[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const categories = await prisma.category.findMany({
       where: includeChildren ? {} : { parentId: null },
       include: includeChildren ? { children: true } : undefined,
@@ -62,25 +86,53 @@ export const categoryService = {
       },
     });
 
+    await setCache(cacheKey, categories, 1800); // 30 mins cache
+
     return categories;
   },
 
   getBySlug: async (slug: string) => {
+    const cacheKey = `category:slug:${slug}`;
+    const cached = await getCache<any>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const category = await prisma.category.findUnique({
       where: { slug },
       include: { children: true, products: true },
     });
 
+    if (category) {
+      await setCache(cacheKey, category, 1800);
+      if (category.id) {
+        await setCache(`category:id:${category.id}`, category, 1800);
+      }
+    }
+
     return category;
   },
 
   getById: async (id: string) => {
+    const cacheKey = `category:id:${id}`;
+    const cached = await getCache<any>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const category = await prisma.category.findFirst({
       where: {
         OR: [{ id }, { slug: id }],
       },
       include: { children: true, products: true },
     });
+
+    if (category) {
+      await setCache(cacheKey, category, 1800);
+      if (category.slug) {
+        await setCache(`category:slug:${category.slug}`, category, 1800);
+      }
+    }
 
     return category;
   },
@@ -149,6 +201,11 @@ export const categoryService = {
       },
     });
 
+    await invalidateCategoryCaches(existingCategory.id, existingCategory.slug);
+    if (slug && slug !== existingCategory.slug) {
+      await delCache(`category:slug:${slug}`);
+    }
+
     return category;
   },
 
@@ -173,6 +230,13 @@ export const categoryService = {
     const category = await prisma.category.delete({
       where: { id },
     });
+
+    await invalidateCategoryCaches(id, existingCategory.slug);
+    await Promise.allSettled([
+      delCachePattern("category:*"),
+      delCachePattern("categories:*"),
+      delCachePattern("products:list:*"),
+    ]);
 
     return category;
   },

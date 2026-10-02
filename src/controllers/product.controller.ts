@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { productService } from "../services/product.service";
 import { prisma } from "../lib/prisma";
+import { getCache, setCache } from "../lib/redis";
 
 export const productController = {
   create: async (req: Request, res: Response) => {
@@ -106,12 +107,21 @@ export const productController = {
 
       // If user is vendor, only show their products
       if (req.user?.role === "VENDOR") {
-        const vendorProfile = await prisma.vendorProfile.findUnique({
-          where: { userId: req.user.id },
-        });
+        const cacheKey = `vendor:userId:${req.user.id}`;
+        let vendorProfileId = await getCache<string>(cacheKey);
+        if (!vendorProfileId) {
+          const vendorProfile = await prisma.vendorProfile.findUnique({
+            where: { userId: req.user.id },
+            select: { id: true },
+          });
+          if (vendorProfile) {
+            vendorProfileId = vendorProfile.id;
+            await setCache(cacheKey, vendorProfileId, 3600);
+          }
+        }
 
-        if (vendorProfile) {
-          filters.vendorId = vendorProfile.id;
+        if (vendorProfileId) {
+          filters.vendorId = vendorProfileId;
         }
       }
 

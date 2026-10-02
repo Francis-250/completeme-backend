@@ -1,5 +1,6 @@
 import { CreateProductReviewData, UpdateProductReviewData } from "../types/catalog.types";
 import { prisma } from "../lib/prisma";
+import { invalidateProductCaches } from "./product.service";
 
 export const reviewService = {
   create: async (userId: string, data: CreateProductReviewData) => {
@@ -198,9 +199,7 @@ export const reviewService = {
       },
     });
 
-    if (data.rating !== undefined) {
-      await reviewService.updateProductRating(existingReview.productId);
-    }
+    await reviewService.updateProductRating(existingReview.productId);
 
     return review;
   },
@@ -240,6 +239,7 @@ export const reviewService = {
         where: { id: productId },
         data: { averageRating: 0, reviewCount: 0 },
       });
+      await invalidateProductCaches(productId);
       return;
     }
 
@@ -253,5 +253,7 @@ export const reviewService = {
         reviewCount: reviews.length,
       },
     });
+
+    await invalidateProductCaches(productId);
   },
 };

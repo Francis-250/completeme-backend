@@ -2,6 +2,21 @@ import { Request, Response, NextFunction } from "express";
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "../lib/auth";
 import { prisma } from "../lib/prisma";
+import { getCache, setCache } from "../lib/redis";
+
+async function getDevAdminUser() {
+  const cacheKey = "auth:dev_admin";
+  const cached = await getCache<any>(cacheKey);
+  if (cached) return cached;
+
+  const adminUser = await prisma.user.findFirst({
+    where: { role: "ADMIN" },
+  });
+  if (adminUser) {
+    await setCache(cacheKey, adminUser, 600);
+  }
+  return adminUser;
+}
 
 export const requireAuth = async (
   req: Request,
@@ -15,9 +30,7 @@ export const requireAuth = async (
 
     if (!session?.user) {
       if (process.env.NODE_ENV !== "production") {
-        const adminUser = await prisma.user.findFirst({
-          where: { role: "ADMIN" },
-        });
+        const adminUser = await getDevAdminUser();
         if (adminUser) {
           req.user = adminUser as any;
           return next();
@@ -37,9 +50,7 @@ export const requireAuth = async (
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {
       try {
-        const adminUser = await prisma.user.findFirst({
-          where: { role: "ADMIN" },
-        });
+        const adminUser = await getDevAdminUser();
         if (adminUser) {
           req.user = adminUser as any;
           return next();
@@ -87,13 +98,21 @@ export const optionalAuth = async (
 
       const token = rawToken || bearerToken;
       if (token) {
-        const dbSession = await prisma.session.findUnique({
-          where: { token },
-          include: { user: true },
-        });
-        if (dbSession && dbSession.expiresAt > new Date()) {
-          req.user = dbSession.user as any;
-          req.session = dbSession as any;
+        const cacheKey = `auth:session:${token}`;
+        const cachedSession = await getCache<any>(cacheKey);
+        if (cachedSession && new Date(cachedSession.expiresAt) > new Date()) {
+          req.user = cachedSession.user;
+          req.session = cachedSession;
+        } else {
+          const dbSession = await prisma.session.findUnique({
+            where: { token },
+            include: { user: true },
+          });
+          if (dbSession && dbSession.expiresAt > new Date()) {
+            req.user = dbSession.user as any;
+            req.session = dbSession as any;
+            await setCache(cacheKey, dbSession, 300);
+          }
         }
       }
     } catch {}

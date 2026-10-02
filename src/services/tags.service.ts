@@ -1,6 +1,17 @@
 import { CreateTagData, UpdateTagData } from "../types/catalog.types";
 import { prisma } from "../lib/prisma";
 import { generateSlug } from "../utils/helpers";
+import { getCache, setCache, delCache, delCachePattern } from "../lib/redis";
+
+async function invalidateTagCaches(id?: string, slug?: string) {
+  const tasks = [
+    delCachePattern("tags:*"),
+    delCachePattern("products:list:*"),
+  ];
+  if (id) tasks.push(delCache(`tag:id:${id}`));
+  if (slug) tasks.push(delCache(`tag:slug:${slug}`));
+  await Promise.allSettled(tasks);
+}
 
 export const tagService = {
   create: async (data: CreateTagData) => {
@@ -23,10 +34,18 @@ export const tagService = {
       },
     });
 
+    await invalidateTagCaches(tag.id, slug);
+
     return tag;
   },
 
   getAll: async () => {
+    const cacheKey = "tags:all";
+    const cached = await getCache<any[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const tags = await prisma.tag.findMany({
       orderBy: {
         createdAt: "desc",
@@ -40,10 +59,18 @@ export const tagService = {
       },
     });
 
+    await setCache(cacheKey, tags, 1800);
+
     return tags;
   },
 
   getBySlug: async (slug: string) => {
+    const cacheKey = `tag:slug:${slug}`;
+    const cached = await getCache<any>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const tag = await prisma.tag.findUnique({
       where: { slug },
       include: {
@@ -55,10 +82,23 @@ export const tagService = {
       },
     });
 
+    if (tag) {
+      await setCache(cacheKey, tag, 1800);
+      if (tag.id) {
+        await setCache(`tag:id:${tag.id}`, tag, 1800);
+      }
+    }
+
     return tag;
   },
 
   getById: async (id: string) => {
+    const cacheKey = `tag:id:${id}`;
+    const cached = await getCache<any>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const tag = await prisma.tag.findUnique({
       where: { id },
       include: {
@@ -69,6 +109,13 @@ export const tagService = {
         },
       },
     });
+
+    if (tag) {
+      await setCache(cacheKey, tag, 1800);
+      if (tag.slug) {
+        await setCache(`tag:slug:${tag.slug}`, tag, 1800);
+      }
+    }
 
     return tag;
   },
@@ -106,6 +153,11 @@ export const tagService = {
       },
     });
 
+    await invalidateTagCaches(tag.id, tag.slug);
+    if (existingTag.slug && existingTag.slug !== tag.slug) {
+      await invalidateTagCaches(tag.id, existingTag.slug);
+    }
+
     return tag;
   },
 
@@ -126,6 +178,8 @@ export const tagService = {
     const tag = await prisma.tag.delete({
       where: { id },
     });
+
+    await invalidateTagCaches(existingTag.id, existingTag.slug);
 
     return tag;
   },

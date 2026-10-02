@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma";
+import { invalidateProductCaches } from "./product.service";
 
 export const stockTransactionService = {
   create: async (data: {
@@ -51,6 +52,8 @@ export const stockTransactionService = {
       where: { id: data.variantId },
       data: { stockQuantity: { increment: stockChange } },
     });
+
+    await invalidateProductCaches(variant.productId);
 
     return transaction;
   },

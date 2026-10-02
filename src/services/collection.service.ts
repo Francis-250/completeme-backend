@@ -2,6 +2,17 @@ import { CreateCollectionData, UpdateCollectionData } from "../types/catalog.typ
 import { prisma } from "../lib/prisma";
 import { generateSlug } from "../utils/helpers";
 import { uploadImage } from "../utils/upload-image";
+import { getCache, setCache, delCache, delCachePattern } from "../lib/redis";
+
+async function invalidateCollectionCaches(id?: string, slug?: string) {
+  const tasks = [
+    delCachePattern("collections:*"),
+    delCachePattern("collection:*"),
+  ];
+  if (id) tasks.push(delCache(`collection:id:${id}`));
+  if (slug) tasks.push(delCache(`collection:slug:${slug}`));
+  await Promise.allSettled(tasks);
+}
 
 export const collectionService = {
   create: async (data: CreateCollectionData) => {
@@ -37,10 +48,18 @@ export const collectionService = {
       },
     });
 
+    await invalidateCollectionCaches(collection.id, slug);
+
     return collection;
   },
 
   getAll: async (includeInactive = false) => {
+    const cacheKey = `collections:all:${includeInactive}`;
+    const cached = await getCache<any[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const where = includeInactive ? {} : { isActive: true };
 
     const collections = await prisma.collection.findMany({
@@ -62,10 +81,18 @@ export const collectionService = {
       },
     });
 
+    await setCache(cacheKey, collections, 1800);
+
     return collections;
   },
 
   getBySlug: async (slug: string) => {
+    const cacheKey = `collection:slug:${slug}`;
+    const cached = await getCache<any>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const collection = await prisma.collection.findUnique({
       where: { slug },
       include: {
@@ -84,10 +111,23 @@ export const collectionService = {
       },
     });
 
+    if (collection) {
+      await setCache(cacheKey, collection, 1800);
+      if (collection.id) {
+        await setCache(`collection:id:${collection.id}`, collection, 1800);
+      }
+    }
+
     return collection;
   },
 
   getById: async (id: string) => {
+    const cacheKey = `collection:id:${id}`;
+    const cached = await getCache<any>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const collection = await prisma.collection.findUnique({
       where: { id },
       include: {
@@ -105,6 +145,13 @@ export const collectionService = {
         },
       },
     });
+
+    if (collection) {
+      await setCache(cacheKey, collection, 1800);
+      if (collection.slug) {
+        await setCache(`collection:slug:${collection.slug}`, collection, 1800);
+      }
+    }
 
     return collection;
   },
@@ -154,6 +201,11 @@ export const collectionService = {
       },
     });
 
+    await invalidateCollectionCaches(collection.id, collection.slug);
+    if (existingCollection.slug && existingCollection.slug !== collection.slug) {
+      await invalidateCollectionCaches(collection.id, existingCollection.slug);
+    }
+
     return collection;
   },
 
@@ -170,6 +222,8 @@ export const collectionService = {
     const collection = await prisma.collection.delete({
       where: { id },
     });
+
+    await invalidateCollectionCaches(existingCollection.id, existingCollection.slug);
 
     return collection;
   },
@@ -212,6 +266,8 @@ export const collectionService = {
       },
     });
 
+    await invalidateCollectionCaches(collectionId, collection.slug);
+
     return collectionProduct;
   },
 
@@ -237,6 +293,8 @@ export const collectionService = {
         },
       },
     });
+
+    await invalidateCollectionCaches(collectionId);
 
     return { success: true };
   },
@@ -264,6 +322,8 @@ export const collectionService = {
       },
       data: { sortOrder },
     });
+
+    await invalidateCollectionCaches(collectionId);
 
     return collectionProduct;
   },

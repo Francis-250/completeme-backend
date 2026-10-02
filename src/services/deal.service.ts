@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma";
+import { getCache, setCache } from "../lib/redis";
 
 export interface DealFilterOptions {
   categoryId?: string;
@@ -23,6 +24,22 @@ export const dealService = {
       page = 1,
       limit = 24,
     } = options;
+
+    const cacheKey = `deals:list:${JSON.stringify({
+      categoryId: categoryId || "",
+      minDiscount,
+      minPrice: minPrice || "",
+      maxPrice: maxPrice || "",
+      search: search?.toLowerCase().trim() || "",
+      sort,
+      page,
+      limit,
+    })}`;
+
+    const cached = await getCache<any>(cacheKey);
+    if (cached) {
+      return cached;
+    }
 
     const where: any = {
       isActive: true,
@@ -50,7 +67,6 @@ export const dealService = {
       orderBy: { createdAt: "desc" },
     });
 
-    // Filter products that have a real compareAtPrice > price
     const deals = allProducts
       .filter((product) => {
         const primaryVariant = product.variants[0];
@@ -95,16 +111,26 @@ export const dealService = {
     const total = deals.length;
     const paginatedDeals = deals.slice((page - 1) * limit, page * limit);
 
-    return {
+    const result = {
       deals: paginatedDeals,
       total,
       page,
       limit,
       totalPages: Math.ceil(total / limit) || 1,
     };
+
+    await setCache(cacheKey, result, 600); // 10 minutes cache
+
+    return result;
   },
 
   getDealById: async (id: string) => {
+    const cacheKey = `deals:item:${id}`;
+    const cached = await getCache<any>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const product = await prisma.product.findUnique({
       where: { id },
       include: {
@@ -128,7 +154,7 @@ export const dealService = {
         ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
         : 15;
 
-    return {
+    const dealItem = {
       ...product,
       price,
       originalPrice:
@@ -138,5 +164,9 @@ export const dealService = {
         ? compareAtPrice - price
         : Math.round(price * 0.2),
     };
+
+    await setCache(cacheKey, dealItem, 900); // 15 minutes cache
+
+    return dealItem;
   },
 };

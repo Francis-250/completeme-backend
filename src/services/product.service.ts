@@ -2,6 +2,30 @@ import { CreateProductData, UpdateProductData, CreateProductVariantData, UpdateP
 import { prisma } from "../lib/prisma";
 import { generateSlug } from "../utils/helpers";
 import { uploadImage } from "../utils/upload-image";
+import { getCache, setCache, delCache, delCachePattern } from "../lib/redis";
+
+export async function invalidateProductCaches(productId?: string, slug?: string, categoryId?: string) {
+  const tasks: Promise<any>[] = [
+    delCachePattern("products:list:*"),
+    delCachePattern("deals:*"),
+    delCachePattern("collections:*"),
+    delCachePattern("tags:*"),
+  ];
+  if (productId) {
+    tasks.push(delCache(`product:id:${productId}`));
+  }
+  if (slug) {
+    tasks.push(delCache(`product:slug:${slug}`));
+  }
+  if (productId && !slug) {
+    tasks.push(delCachePattern("product:slug:*"));
+  }
+  if (categoryId) {
+    tasks.push(delCache(`category:id:${categoryId}`));
+    tasks.push(delCachePattern("category:*"));
+  }
+  await Promise.allSettled(tasks);
+}
 
 export const productService = {
   create: async (data: CreateProductData, vendorId?: string) => {
@@ -148,6 +172,8 @@ export const productService = {
       },
     });
 
+    await invalidateProductCaches(product.id, slug, data.categoryId);
+
     return finalProduct;
   },
 
@@ -169,6 +195,28 @@ export const productService = {
       page = 1,
       limit = 20,
     } = filters;
+
+    const cacheKey = `products:list:${JSON.stringify({
+      categoryId: categoryId || "",
+      brandId: brandId || "",
+      vendorId: vendorId || "",
+      isActive: isActive !== undefined ? isActive : "",
+      search: search?.toLowerCase().trim() || "",
+      page,
+      limit,
+    })}`;
+
+    const cached = await getCache<{
+      products: any[];
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    }>(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
 
     const where: Record<string, unknown> = {};
 
@@ -203,10 +251,19 @@ export const productService = {
       prisma.product.count({ where }),
     ]);
 
-    return { products, total, page, limit, totalPages: Math.ceil(total / limit) };
+    const result = { products, total, page, limit, totalPages: Math.ceil(total / limit) };
+    await setCache(cacheKey, result, 600); // 10 minutes cache
+
+    return result;
   },
 
   getBySlug: async (slug: string) => {
+    const cacheKey = `product:slug:${slug}`;
+    const cached = await getCache<any>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const product = await prisma.product.findUnique({
       where: { slug },
       include: {
@@ -225,10 +282,23 @@ export const productService = {
       },
     });
 
+    if (product) {
+      await setCache(cacheKey, product, 900); // 15 minutes cache
+      if (product.id) {
+        await setCache(`product:id:${product.id}`, product, 900);
+      }
+    }
+
     return product;
   },
 
   getById: async (id: string) => {
+    const cacheKey = `product:id:${id}`;
+    const cached = await getCache<any>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const product = await prisma.product.findUnique({
       where: { id },
       include: {
@@ -245,6 +315,13 @@ export const productService = {
         },
       },
     });
+
+    if (product) {
+      await setCache(cacheKey, product, 900); // 15 minutes cache
+      if (product.slug) {
+        await setCache(`product:slug:${product.slug}`, product, 900);
+      }
+    }
 
     return product;
   },
@@ -397,6 +474,11 @@ export const productService = {
       },
     });
 
+    await invalidateProductCaches(id, existingProduct.slug, existingProduct.categoryId || undefined);
+    if (slug && slug !== existingProduct.slug) {
+      await delCache(`product:slug:${slug}`);
+    }
+
     return product;
   },
 
@@ -447,6 +529,17 @@ export const productService = {
         where: { id },
       });
     });
+
+    await invalidateProductCaches(id, existingProduct.slug, existingProduct.categoryId || undefined);
+    await Promise.allSettled([
+      delCache(`product:id:${id}`),
+      delCache(`product:slug:${existingProduct.slug}`),
+      delCachePattern(`product:*`),
+      delCachePattern(`products:*`),
+      delCachePattern(`deals:*`),
+      delCachePattern(`collections:*`),
+      delCachePattern(`tags:*`),
+    ]);
 
     return { success: true };
   },
@@ -509,6 +602,8 @@ export const productService = {
       });
     }
 
+    await invalidateProductCaches(productId, product.slug);
+
     return variant;
   },
 
@@ -565,6 +660,8 @@ export const productService = {
       },
     });
 
+    await invalidateProductCaches(existingVariant.productId, existingVariant.product.slug);
+
     return variant;
   },
 
@@ -585,6 +682,8 @@ export const productService = {
     await prisma.productVariant.delete({
       where: { id: variantId },
     });
+
+    await invalidateProductCaches(existingVariant.productId, existingVariant.product.slug);
 
     return { success: true };
   },
@@ -622,6 +721,8 @@ export const productService = {
       data: { productId, tagId },
     });
 
+    await invalidateProductCaches(productId, product.slug);
+
     return { success: true };
   },
 
@@ -649,6 +750,8 @@ export const productService = {
     await prisma.productTag.delete({
       where: { productId_tagId: { productId, tagId } },
     });
+
+    await invalidateProductCaches(productId, product.slug);
 
     return { success: true };
   },

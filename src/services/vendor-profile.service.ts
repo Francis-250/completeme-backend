@@ -2,6 +2,7 @@ import { CreateVendorProfileData, UpdateVendorProfileData } from "../types/catal
 import { prisma } from "../lib/prisma";
 import { generateSlug } from "../utils/helpers";
 import { uploadImage } from "../utils/upload-image";
+import { delCache } from "../lib/redis";
 
 export const vendorProfileService = {
   create: async (data: CreateVendorProfileData) => {
@@ -202,6 +203,8 @@ export const vendorProfileService = {
     await prisma.vendorProfile.delete({
       where: { id },
     });
+
+    await delCache(`vendor:userId:${existingProfile.userId}`);
 
     return { success: true };
   },
