@@ -1,106 +1,24 @@
 import { prisma } from "../lib/prisma";
 
-export const DEFAULT_SETTINGS = {
-  storeName: "completeme",
-  storeEmail: "hello@completeme.com",
-  storePhone: "+1 (234) 567-890",
-  storeAddress: "123 Market St, San Francisco, CA 94103",
-  logoUrl: "",
-
-  currency: "USD",
-  currencySymbol: "$",
-  timezone: "America/Los_Angeles",
-
-  freeShippingThreshold: "50",
-  flatShippingRate: "5.99",
-  enableFreeShipping: true,
-  enableLocalPickup: false,
-
-  taxRate: "8",
-  taxIncludedInPrice: false,
-
-  orderPrefix: "SP-",
-  lowStockThreshold: "10",
-  allowGuestCheckout: true,
-  enableReviews: true,
-  enableWishlist: true,
-
-  enableMomoPay: true,
-  momoPayCode: "*182*8*1*000000#",
-  momoMerchantName: "completeme",
-  enableAirtelPay: true,
-  airtelPayCode: "*182*8*1*000000#",
-  airtelMerchantName: "completeme",
-  enableCardPayment: true,
-  paymentInstructions:
-    "Dial the payment code on your mobile phone, verify merchant name and amount, enter your PIN to authorize payment, then enter your phone number and transaction reference below.",
-
-  metaTitle: "completeme — Everyday essentials",
-  metaDescription: "Curated audio, watches, and accessories made to last.",
-
-  facebookUrl: "https://facebook.com/",
-  instagramUrl: "https://instagram.com/",
-  twitterUrl: "https://x.com/",
-  youtubeUrl: "https://youtube.com/@",
-  tiktokUrl: "https://tiktok.com/@",
-  linkedinUrl: "https://linkedin.com/company/",
-  pinterestUrl: "https://pinterest.com/",
-  whatsappUrl: "https://wa.me/",
-
-  enableTopBar: true,
-  topBarText:
-    "Free shipping on orders over $50 | Use code WELCOME10 for 10% off",
-  topBarLink: "/products",
-  topBarLinkText: "Shop Now",
-
-  enablePromoBanner: true,
-  promoBadge: "Limited time offer",
-  promoTitle: "Up to 30% off sound & style",
-  promoDescription:
-    "Handpicked headphones, watches, and accessories at their best prices this season. Free shipping on orders over $50.",
-  promoButtonText: "Shop the sale",
-  promoButtonLink: "/deals",
-  promoImageUrl: "/image/watch.webp",
-
-  enableNewsletter: true,
-  newsletterTitle: "Stay in the loop",
-  newsletterSubtitle:
-    "New drops, early access, and the occasional sale — no spam, ever.",
-  newsletterButtonText: "Subscribe",
-
-  brandSectionTitle: "Trusted by brands you know",
-};
-
 export const settingsService = {
-  getSettings: async () => {
+  getSettings: async (): Promise<Record<string, any>> => {
     try {
       const record = await prisma.storeSetting.findUnique({
         where: { id: "default" },
       });
 
-      if (!record || !record.values) {
-        const created = await prisma.storeSetting.upsert({
-          where: { id: "default" },
-          update: {},
-          create: {
-            id: "default",
-            values: DEFAULT_SETTINGS,
-          },
-        });
-        return (created.values as any) || DEFAULT_SETTINGS;
+      if (!record || !record.values || typeof record.values !== "object") {
+        return {};
       }
 
-      return {
-        ...DEFAULT_SETTINGS,
-        ...(typeof record.values === "object" ? record.values : {}),
-      };
+      return record.values as Record<string, any>;
     } catch (err) {
-      console.error("Failed to read settings from DB:", err);
-      return DEFAULT_SETTINGS;
+      console.error("Failed to read settings from database:", err);
+      return {};
     }
   },
 
-  updateSettings: async (newValues: Record<string, any>) => {
+  updateSettings: async (newValues: Record<string, any>): Promise<Record<string, any>> => {
     try {
       const current = await settingsService.getSettings();
       const merged = { ...current, ...newValues };
@@ -116,10 +34,10 @@ export const settingsService = {
         },
       });
 
-      return (updated.values as any) || merged;
+      return (updated.values as Record<string, any>) || merged;
     } catch (err) {
-      console.error("Failed to update settings in DB:", err);
-      return { ...DEFAULT_SETTINGS, ...newValues };
+      console.error("Failed to update settings in database:", err);
+      throw err;
     }
   },
 };

@@ -2,34 +2,17 @@ import { prisma } from "../lib/prisma";
 
 export const profileService = {
   getProfile: async (userId?: string) => {
-    let user;
-    if (userId) {
-      user = await prisma.user.findUnique({ where: { id: userId } });
-    }
-    if (!user) {
-      user = await prisma.user.findFirst({
-        where: { role: "ADMIN" },
-      });
-    }
-    if (!user) {
-      user = await prisma.user.findFirst();
+    if (!userId) {
+      return null;
     }
 
+    const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      return {
-        id: "admin-default",
-        firstName: "Francois",
-        lastName: "Admin",
-        email: "admin@completeme.com",
-        phone: "+15551001001",
-        role: "Store Owner",
-        bio: "Running completeme — building a calm, considered store for everyday essentials.",
-        avatarUrl: "",
-      };
+      return null;
     }
 
     const nameParts = (user.name || "").trim().split(" ");
-    const firstName = nameParts[0] || "Admin";
+    const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(" ") || "";
 
     return {
@@ -38,9 +21,8 @@ export const profileService = {
       lastName,
       email: user.email,
       phone: user.phoneNumber || "",
-      role:
-        user.role === "ADMIN" ? "Store Owner" : user.role || "Administrator",
-      bio: "Running completeme — building a calm, considered store for everyday essentials.",
+      role: user.role || "CUSTOMER",
+      bio: "",
       avatarUrl: user.image || "",
     };
   },
@@ -56,14 +38,9 @@ export const profileService = {
       bio?: string;
     },
   ) => {
-    let targetId = userId;
+    const targetId = userId;
     if (!targetId) {
-      const admin = await prisma.user.findFirst({ where: { role: "ADMIN" } });
-      targetId = admin?.id;
-    }
-
-    if (!targetId) {
-      throw new Error("USER_NOT_FOUND");
+      throw new Error("UNAUTHORIZED");
     }
 
     const updateData: Record<string, unknown> = {};

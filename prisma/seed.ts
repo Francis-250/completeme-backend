@@ -53,8 +53,8 @@ async function main() {
       emailVerified: true,
       image:
         "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
-      phoneNumber: "+15551001001",
-      phoneNumberVerified: true,
+      phoneNumber: null,
+      phoneNumberVerified: false,
       username: "admin_francois",
       displayUsername: "Francois Admin",
       role: "ADMIN",
@@ -70,8 +70,8 @@ async function main() {
       emailVerified: true,
       image:
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
-      phoneNumber: "+15552002002",
-      phoneNumberVerified: true,
+      phoneNumber: null,
+      phoneNumberVerified: false,
       username: "marcus_auratech",
       displayUsername: "Marcus Aurelius",
       role: "VENDOR",
@@ -86,8 +86,8 @@ async function main() {
       emailVerified: true,
       image:
         "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
-      phoneNumber: "+15553003003",
-      phoneNumberVerified: true,
+      phoneNumber: null,
+      phoneNumberVerified: false,
       username: "elena_velvet",
       displayUsername: "Elena Rostova",
       role: "VENDOR",
@@ -102,8 +102,8 @@ async function main() {
       emailVerified: true,
       image:
         "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
-      phoneNumber: "+15554004004",
-      phoneNumberVerified: true,
+      phoneNumber: null,
+      phoneNumberVerified: false,
       username: "lucas_vance",
       displayUsername: "Lucas Vance",
       role: "CUSTOMER",
@@ -118,8 +118,8 @@ async function main() {
       emailVerified: true,
       image:
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
-      phoneNumber: "+15555005005",
-      phoneNumberVerified: true,
+      phoneNumber: null,
+      phoneNumberVerified: false,
       username: "sophia_m",
       displayUsername: "Sophia Martinez",
       role: "CUSTOMER",
@@ -1384,7 +1384,75 @@ async function main() {
     ],
   });
 
-  console.log("\n🎉 Database seeded successfully with all 29 models!");
+  // 30. Seed StoreSetting (Site settings in database)
+  await prisma.storeSetting.upsert({
+    where: { id: "default" },
+    update: {},
+    create: {
+      id: "default",
+      values: {
+        storeName: "completeme",
+        storeEmail: "hello@completeme.com",
+        storePhone: "+250 788 000 000",
+        storeAddress: "Kigali Heights, KG 7 Ave, Kigali, Rwanda",
+        logoUrl: "",
+        currency: "USD",
+        currencySymbol: "$",
+        timezone: "Africa/Kigali",
+        freeShippingThreshold: "50",
+        flatShippingRate: "5.99",
+        enableFreeShipping: true,
+        enableLocalPickup: false,
+        taxRate: "8",
+        taxIncludedInPrice: false,
+        orderPrefix: "SP-",
+        lowStockThreshold: "10",
+        allowGuestCheckout: true,
+        enableReviews: true,
+        enableWishlist: true,
+        enableMomoPay: true,
+        momoPayCode: "*182*8*1*000000#",
+        momoMerchantName: "completeme",
+        enableAirtelPay: true,
+        airtelPayCode: "*182*8*1*000000#",
+        airtelMerchantName: "completeme",
+        enableCardPayment: true,
+        paymentInstructions:
+          "Dial the payment code on your mobile phone, verify merchant name and amount, enter your PIN to authorize payment, then enter your phone number and transaction reference below.",
+        metaTitle: "completeme — Everyday essentials",
+        metaDescription: "Curated audio, watches, and accessories made to last.",
+        facebookUrl: "https://facebook.com/",
+        instagramUrl: "https://instagram.com/",
+        twitterUrl: "https://x.com/",
+        youtubeUrl: "https://youtube.com/@",
+        tiktokUrl: "https://tiktok.com/@",
+        linkedinUrl: "https://linkedin.com/company/",
+        pinterestUrl: "https://pinterest.com/",
+        whatsappUrl: "https://wa.me/",
+        enableTopBar: true,
+        topBarText:
+          "Free shipping on orders over $50 | Use code WELCOME10 for 10% off",
+        topBarLink: "/products",
+        topBarLinkText: "Shop Now",
+        enablePromoBanner: true,
+        promoBadge: "Limited time offer",
+        promoTitle: "Up to 30% off sound & style",
+        promoDescription:
+          "Handpicked headphones, watches, and accessories at their best prices this season. Free shipping on orders over $50.",
+        promoButtonText: "Shop the sale",
+        promoButtonLink: "/deals",
+        promoImageUrl: "/image/watch.webp",
+        enableNewsletter: true,
+        newsletterTitle: "Stay in the loop",
+        newsletterSubtitle:
+          "New drops, early access, and the occasional sale — no spam, ever.",
+        newsletterButtonText: "Subscribe",
+        brandSectionTitle: "Trusted by brands you know",
+      },
+    },
+  });
+
+  console.log("\n🎉 Database seeded successfully with all 30 models!");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("🔑 Default Seed User Accounts (Password: Password123!)");
   console.log("  • Admin:    admin@completeme.com       (Role: ADMIN)");

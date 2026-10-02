@@ -73,6 +73,32 @@ export const optionalAuth = async (
     // Ignored in optionalAuth
   }
 
+  if (!req.user) {
+    try {
+      const rawCookie = req.headers.cookie || "";
+      const match = rawCookie.match(/better-auth\.session_token=([^;]+)/);
+      const tokenWithSig = match ? decodeURIComponent(match[1]) : null;
+      const rawToken = tokenWithSig ? tokenWithSig.split(".")[0] : null;
+
+      const authHeader = req.headers.authorization;
+      const bearerToken = authHeader?.startsWith("Bearer ")
+        ? authHeader.slice(7).trim()
+        : null;
+
+      const token = rawToken || bearerToken;
+      if (token) {
+        const dbSession = await prisma.session.findUnique({
+          where: { token },
+          include: { user: true },
+        });
+        if (dbSession && dbSession.expiresAt > new Date()) {
+          req.user = dbSession.user as any;
+          req.session = dbSession as any;
+        }
+      }
+    } catch {}
+  }
+
   next();
 };
 
