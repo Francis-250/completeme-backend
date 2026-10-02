@@ -173,6 +173,7 @@ export interface CreateOrderData {
 export interface UpdateOrderData {
   status?: "PENDING" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "RETURNED";
   shippingAddressId?: string;
+  cancelReason?: string;
 }
 
 export interface CreateOrderItemData {

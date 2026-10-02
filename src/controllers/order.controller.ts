@@ -191,7 +191,7 @@ export const orderController = {
   update: async (req: Request<{ id: string }>, res: Response) => {
     try {
       const id: string = req.params.id;
-      const { status, shippingAddressId } = req.body;
+      const { status, shippingAddressId, cancelReason } = req.body;
       const userId = req.user?.id;
       const isAdmin = (req.user?.role || "").toUpperCase() === "ADMIN";
 
@@ -205,6 +205,7 @@ export const orderController = {
       const order = await orderService.update(id, {
         status,
         shippingAddressId,
+        cancelReason,
       }, userId, isAdmin);
 
       return res.status(200).json({
@@ -253,6 +254,7 @@ export const orderController = {
   cancel: async (req: Request<{ id: string }>, res: Response) => {
     try {
       const id: string = req.params.id;
+      const { cancelReason, reason } = req.body;
       const userId = req.user?.id;
       const isAdmin = req.user?.role === "ADMIN";
 
@@ -263,7 +265,7 @@ export const orderController = {
         });
       }
 
-      const order = await orderService.cancel(id, userId, isAdmin);
+      const order = await orderService.cancel(id, userId, isAdmin, cancelReason || reason);
 
       return res.status(200).json({
         success: true,

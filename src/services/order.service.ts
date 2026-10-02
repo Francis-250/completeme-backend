@@ -405,6 +405,7 @@ export const orderService = {
       data: {
         ...(targetStatus !== undefined && { status: targetStatus }),
         ...(data.shippingAddressId !== undefined && { shippingAddressId: data.shippingAddressId }),
+        ...(data.cancelReason !== undefined && { cancelReason: data.cancelReason }),
       },
       include: {
         orderItems: {
@@ -425,7 +426,7 @@ export const orderService = {
     });
 
     // If order cancelled, restore stock
-    if (data.status === "CANCELLED" && existingOrder.status !== "CANCELLED") {
+    if (targetStatus === "CANCELLED" && existingOrder.status !== "CANCELLED") {
       await prisma.$transaction(async (tx) => {
         for (const item of existingOrder.orderItems) {
           if (item.variantId) {
@@ -462,8 +463,8 @@ export const orderService = {
     return order;
   },
 
-  cancel: async (id: string, userId?: string, isAdmin = false) => {
-    return orderService.update(id, { status: "CANCELLED" }, userId, isAdmin);
+  cancel: async (id: string, userId?: string, isAdmin = false, cancelReason?: string) => {
+    return orderService.update(id, { status: "CANCELLED", cancelReason }, userId, isAdmin);
   },
 
   getStats: async (userId?: string) => {

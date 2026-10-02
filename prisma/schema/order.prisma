@@ -47,6 +47,7 @@ model Order {
   discountAmount Decimal @default(0.00) @db.Decimal(12, 2)
 
   status OrderStatus @default(PENDING)
+  cancelReason String?
 
   shippingAddressId String?
   shippingAddress   UserAddress? @relation(fields: [shippingAddressId], references: [id], onDelete: SetNull)
