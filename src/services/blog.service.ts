@@ -44,9 +44,15 @@ export const blogService = {
   },
 
   getBySlug: async (slug: string) => {
-    return prisma.blogPost.findUnique({
+    let post = await prisma.blogPost.findUnique({
       where: { slug },
     });
+    if (!post) {
+      post = await prisma.blogPost.findUnique({
+        where: { id: slug },
+      });
+    }
+    return post;
   },
 
   getById: async (id: string) => {
