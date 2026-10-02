@@ -168,7 +168,7 @@ export const paymentService = {
       throw new Error("PAYMENT_NOT_FOUND");
     }
 
-    if (existingPayment.status !== "FAILED") {
+    if (existingPayment.status !== "FAILED" && existingPayment.status !== "PENDING") {
       throw new Error("CANNOT_DELETE_COMPLETED_PAYMENT");
     }
 

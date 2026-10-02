@@ -187,11 +187,11 @@ export interface CreatePaymentData {
   paymentMethod: string;
   transactionId: string;
   amount: number;
-  status: "COMPLETED" | "FAILED" | "REFUNDED";
+  status: "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
 }
 
 export interface UpdatePaymentData {
-  status?: "COMPLETED" | "FAILED" | "REFUNDED";
+  status?: "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";
 }
 
 export interface CreateShipmentData {

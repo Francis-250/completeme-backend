@@ -221,6 +221,10 @@ export const orderService = {
       // Record payment
       const paymentMethod = (data as any).paymentMethod || "Credit Card";
       const userTxnId = (data as any).transactionId ? String((data as any).transactionId).trim() : "";
+      const isManualMobileMoney = /momo|airtel|mobile money/i.test(paymentMethod);
+      const paymentStatus =
+        (data as any).paymentStatus ||
+        (isManualMobileMoney ? "PENDING" : "COMPLETED");
       let transactionId = userTxnId || `txn_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
       if (userTxnId) {
         const existingTxn = await tx.payment.findUnique({
@@ -237,7 +241,7 @@ export const orderService = {
           paymentMethod,
           transactionId,
           amount: totalAmount,
-          status: "COMPLETED",
+          status: paymentStatus,
         },
       });
 

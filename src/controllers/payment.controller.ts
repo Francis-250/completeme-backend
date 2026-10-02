@@ -14,7 +14,7 @@ export const paymentController = {
         });
       }
 
-      if (!["COMPLETED", "FAILED", "REFUNDED"].includes(status)) {
+      if (!["PENDING", "COMPLETED", "FAILED", "REFUNDED"].includes(status)) {
         return res.status(400).json({
           success: false,
           message: "Invalid payment status",
@@ -166,7 +166,7 @@ export const paymentController = {
       const id: string = req.params.id;
       const { status } = req.body;
 
-      if (!status || !["COMPLETED", "FAILED", "REFUNDED"].includes(status)) {
+      if (!status || !["PENDING", "COMPLETED", "FAILED", "REFUNDED"].includes(status)) {
         return res.status(400).json({
           success: false,
           message: "Valid status is required",
