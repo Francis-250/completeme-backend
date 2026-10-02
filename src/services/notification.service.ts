@@ -31,7 +31,6 @@ export const notificationService = {
     description: string;
     href?: string;
   }) => {
-    // Avoid duplicate alerts within 12 hours
     const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
     const existing = await prisma.notification.findFirst({
       where: {
@@ -57,7 +56,7 @@ export const notificationService = {
   },
 
   markAsRead: async (id: string) => {
-    return prisma.notification.update({
+    return prisma.notification.updateMany({
       where: { id },
       data: { read: true },
     });
@@ -71,7 +70,7 @@ export const notificationService = {
   },
 
   delete: async (id: string) => {
-    return prisma.notification.delete({
+    return prisma.notification.deleteMany({
       where: { id },
     });
   },

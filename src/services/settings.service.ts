@@ -25,7 +25,6 @@ export const DEFAULT_SETTINGS = {
   enableReviews: true,
   enableWishlist: true,
 
-  // Mobile Money & Payment Methods
   enableMomoPay: true,
   momoPayCode: "*182*8*1*000000#",
   momoMerchantName: "completeme",
@@ -39,18 +38,21 @@ export const DEFAULT_SETTINGS = {
   metaTitle: "completeme — Everyday essentials",
   metaDescription: "Curated audio, watches, and accessories made to last.",
 
-  facebookUrl: "",
-  instagramUrl: "",
-  twitterUrl: "",
+  facebookUrl: "https://facebook.com/",
+  instagramUrl: "https://instagram.com/",
+  twitterUrl: "https://x.com/",
+  youtubeUrl: "https://youtube.com/@",
+  tiktokUrl: "https://tiktok.com/@",
+  linkedinUrl: "https://linkedin.com/company/",
+  pinterestUrl: "https://pinterest.com/",
+  whatsappUrl: "https://wa.me/",
 
-  // Top Navbar / Announcement Bar
   enableTopBar: true,
   topBarText:
     "Free shipping on orders over $50 | Use code WELCOME10 for 10% off",
   topBarLink: "/products",
   topBarLinkText: "Shop Now",
 
-  // Promo Banner
   enablePromoBanner: true,
   promoBadge: "Limited time offer",
   promoTitle: "Up to 30% off sound & style",
@@ -60,14 +62,12 @@ export const DEFAULT_SETTINGS = {
   promoButtonLink: "/deals",
   promoImageUrl: "/image/watch.webp",
 
-  // Newsletter Banner
   enableNewsletter: true,
   newsletterTitle: "Stay in the loop",
   newsletterSubtitle:
     "New drops, early access, and the occasional sale — no spam, ever.",
   newsletterButtonText: "Subscribe",
 
-  // Brand Section
   brandSectionTitle: "Trusted by brands you know",
 };
 
@@ -79,7 +79,6 @@ export const settingsService = {
       });
 
       if (!record || !record.values) {
-        // Initialize default
         const created = await prisma.storeSetting.upsert({
           where: { id: "default" },
           update: {},

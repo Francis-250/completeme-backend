@@ -11,7 +11,6 @@ export const reviewService = {
       throw new Error("PRODUCT_NOT_FOUND");
     }
 
-    // Check if user already reviewed this product
     const existingReview = await prisma.productReview.findUnique({
       where: {
         productId_userId: {
@@ -25,7 +24,6 @@ export const reviewService = {
       throw new Error("REVIEW_ALREADY_EXISTS");
     }
 
-    // Check if user purchased this product (optional business logic)
     const hasPurchased = await prisma.orderItem.findFirst({
       where: {
         order: {
@@ -46,7 +44,7 @@ export const reviewService = {
         title: data.title,
         comment: data.comment,
         isVerified: !!hasPurchased,
-        isApproved: true, // Auto-approve for now
+        isApproved: true, 
       },
       include: {
         user: {
@@ -66,7 +64,6 @@ export const reviewService = {
       },
     });
 
-    // Update product average rating and review count
     await reviewService.updateProductRating(data.productId);
 
     return review;
@@ -168,12 +165,10 @@ export const reviewService = {
       throw new Error("REVIEW_NOT_FOUND");
     }
 
-    // Only allow owner or admin to update
     if (!isAdmin && existingReview.userId !== userId) {
       throw new Error("FORBIDDEN");
     }
 
-    // Non-admin users can only update rating, title, comment
     const updateData = isAdmin
       ? data
       : {
@@ -203,7 +198,6 @@ export const reviewService = {
       },
     });
 
-    // Update product average rating if rating changed
     if (data.rating !== undefined) {
       await reviewService.updateProductRating(existingReview.productId);
     }
@@ -220,7 +214,6 @@ export const reviewService = {
       throw new Error("REVIEW_NOT_FOUND");
     }
 
-    // Only allow owner or admin to delete
     if (!isAdmin && existingReview.userId !== userId) {
       throw new Error("FORBIDDEN");
     }
@@ -231,7 +224,6 @@ export const reviewService = {
       where: { id },
     });
 
-    // Update product average rating
     await reviewService.updateProductRating(productId);
 
     return { success: true };

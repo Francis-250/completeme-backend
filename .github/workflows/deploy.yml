@@ -18,3 +18,20 @@ jobs:
           docker build . --tag $IMAGE:${{ github.ref_name }} --tag $IMAGE:latest
           docker push $IMAGE:${{ github.ref_name }}
           docker push $IMAGE:latest
+
+  # deploy:
+  #   needs: push_image
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: appleboy/ssh-action@v1
+  #       with:
+  #         host: ${{ secrets.VPS_HOST }}
+  #         username: ${{ secrets.VPS_USER }}
+  #         key: ${{ secrets.VPS_SSH_KEY }}
+  #         script_stop: true
+  #         script: |
+  #           cd ~/app
+  #           docker compose pull
+  #           docker compose run --rm server npx prisma migrate deploy
+  #           docker compose up -d
+  #           docker image prune -f

@@ -31,7 +31,6 @@ export const stockTransactionService = {
       },
     });
 
-    // Update variant stock quantity based on transaction type
     let stockChange = 0;
     switch (data.type) {
       case "RESTOCK":
@@ -44,7 +43,7 @@ export const stockTransactionService = {
         stockChange = data.quantity;
         break;
       case "ADJUSTMENT":
-        stockChange = data.quantity; // Can be positive or negative
+        stockChange = data.quantity;
         break;
     }
 

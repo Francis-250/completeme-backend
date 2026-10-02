@@ -14,7 +14,6 @@ export const newsletterService = {
       create: { email: cleanEmail, isActive: true },
     });
 
-    // Notify admin of new newsletter subscriber
     try {
       await notificationService.create({
         type: "system",

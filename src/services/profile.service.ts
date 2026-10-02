@@ -7,13 +7,11 @@ export const profileService = {
       user = await prisma.user.findUnique({ where: { id: userId } });
     }
     if (!user) {
-      // Default to the first admin user
       user = await prisma.user.findFirst({
         where: { role: "ADMIN" },
       });
     }
     if (!user) {
-      // Fallback to any user
       user = await prisma.user.findFirst();
     }
 

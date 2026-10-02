@@ -116,7 +116,6 @@ export const productService = {
       },
     });
 
-    // Upload variant images
     if (data.variants.some((v) => v.images && v.images.length > 0)) {
       for (const variant of data.variants) {
         if (variant.images && variant.images.length > 0) {
@@ -138,7 +137,6 @@ export const productService = {
       }
     }
 
-    // Re-fetch with updated images
     const finalProduct = await prisma.product.findUnique({
       where: { id: product.id },
       include: {
@@ -183,6 +181,8 @@ export const productService = {
         { name: { contains: search, mode: "insensitive" } },
         { description: { contains: search, mode: "insensitive" } },
         { shortDescription: { contains: search, mode: "insensitive" } },
+        { category: { name: { contains: search, mode: "insensitive" } } },
+        { brand: { name: { contains: search, mode: "insensitive" } } },
       ];
     }
 
@@ -190,7 +190,7 @@ export const productService = {
       prisma.product.findMany({
         where,
         include: {
-          images: true,
+          images: true, 
           variants: true,
           category: true,
           brand: true,
@@ -259,7 +259,6 @@ export const productService = {
       throw new Error("PRODUCT_NOT_FOUND");
     }
 
-    // Check vendor ownership if vendorId provided
     if (vendorId && existingProduct.vendorId !== vendorId) {
       throw new Error("FORBIDDEN");
     }
@@ -311,7 +310,6 @@ export const productService = {
       }
     }
 
-    // Handle new images upload
     let newImages: { url: string; altText?: string; sortOrder: number; isPrimary: boolean }[] = [];
 
     if (data.images && data.images.length > 0) {
@@ -327,7 +325,6 @@ export const productService = {
         });
       }
     } else if (data.imageUrls && data.imageUrls.length > 0) {
-      // Overwrite images if an explicit list was passed
       await prisma.productImage.deleteMany({
         where: { productId: id },
       });
@@ -342,7 +339,6 @@ export const productService = {
       });
     }
 
-    // Handle variants update if provided
     if (data.variants && data.variants.length > 0) {
       for (const v of data.variants) {
         const existingVariant = existingProduct.variants.find(
@@ -414,7 +410,6 @@ export const productService = {
       throw new Error("PRODUCT_NOT_FOUND");
     }
 
-    // Check vendor ownership if vendorId provided
     if (vendorId && existingProduct.vendorId !== vendorId) {
       throw new Error("FORBIDDEN");
     }
@@ -422,22 +417,16 @@ export const productService = {
     const variantIds = existingProduct.variants.map((v) => v.id);
 
     await prisma.$transaction(async (tx) => {
-      // 1. Delete collection associations
       await tx.collectionProduct.deleteMany({ where: { productId: id } });
 
-      // 2. Delete tag associations
       await tx.productTag.deleteMany({ where: { productId: id } });
 
-      // 3. Delete wishlists
       await tx.wishlistItem.deleteMany({ where: { productId: id } });
 
-      // 4. Delete reviews
       await tx.productReview.deleteMany({ where: { productId: id } });
 
-      // 5. Delete product images
       await tx.productImage.deleteMany({ where: { productId: id } });
 
-      // 6. Clean up variant references
       if (variantIds.length > 0) {
         await tx.orderItem.updateMany({
           where: { variantId: { in: variantIds } },
@@ -454,7 +443,6 @@ export const productService = {
         });
       }
 
-      // 7. Delete the product itself
       await tx.product.delete({
         where: { id },
       });
@@ -463,7 +451,6 @@ export const productService = {
     return { success: true };
   },
 
-  // Variant methods
   createVariant: async (productId: string, data: CreateProductVariantData, vendorId?: string) => {
     const product = await prisma.product.findUnique({
       where: { id: productId },
@@ -549,7 +536,6 @@ export const productService = {
       }
     }
 
-    // Handle new images
     if (data.images && data.images.length > 0) {
       for (let i = 0; i < data.images.length; i++) {
         const imageUrl = await uploadImage(data.images[i], {
@@ -603,7 +589,6 @@ export const productService = {
     return { success: true };
   },
 
-  // Tag management
   addTag: async (productId: string, tagId: string, vendorId?: string) => {
     const product = await prisma.product.findUnique({
       where: { id: productId },

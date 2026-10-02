@@ -11,7 +11,6 @@ export const paymentService = {
       throw new Error("ORDER_NOT_FOUND");
     }
 
-    // Check if transaction ID already exists
     const existingPayment = await prisma.payment.findUnique({
       where: { transactionId: data.transactionId },
     });
@@ -37,7 +36,6 @@ export const paymentService = {
       },
     });
 
-    // If payment completed, update order status
     if (data.status === "COMPLETED") {
       await prisma.order.update({
         where: { id: data.orderId },
@@ -144,7 +142,6 @@ export const paymentService = {
       },
     });
 
-    // If payment completed, update order status
     if (data.status === "COMPLETED") {
       await prisma.order.update({
         where: { id: existingPayment.orderId },
@@ -152,7 +149,6 @@ export const paymentService = {
       });
     }
 
-    // If payment refunded, update order status
     if (data.status === "REFUNDED") {
       await prisma.order.update({
         where: { id: existingPayment.orderId },
@@ -172,7 +168,6 @@ export const paymentService = {
       throw new Error("PAYMENT_NOT_FOUND");
     }
 
-    // Only allow deletion of failed payments
     if (existingPayment.status !== "FAILED") {
       throw new Error("CANNOT_DELETE_COMPLETED_PAYMENT");
     }

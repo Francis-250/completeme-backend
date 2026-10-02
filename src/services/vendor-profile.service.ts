@@ -7,7 +7,6 @@ export const vendorProfileService = {
   create: async (data: CreateVendorProfileData) => {
     const slug = generateSlug(data.companyName);
 
-    // Check if user already has a vendor profile
     const existingProfile = await prisma.vendorProfile.findUnique({
       where: { userId: data.userId },
     });
@@ -16,7 +15,6 @@ export const vendorProfileService = {
       throw new Error("VENDOR_PROFILE_EXISTS");
     }
 
-    // Check if company name or slug already exists
     const duplicate = await prisma.vendorProfile.findFirst({
       where: {
         OR: [{ companyName: data.companyName }, { slug }],
@@ -134,7 +132,6 @@ export const vendorProfileService = {
       throw new Error("VENDOR_PROFILE_NOT_FOUND");
     }
 
-    // Check ownership
     if (!isAdmin && existingProfile.userId !== userId) {
       throw new Error("FORBIDDEN");
     }
@@ -194,7 +191,6 @@ export const vendorProfileService = {
       throw new Error("VENDOR_PROFILE_NOT_FOUND");
     }
 
-    // Only admin can delete
     if (!isAdmin) {
       throw new Error("FORBIDDEN");
     }

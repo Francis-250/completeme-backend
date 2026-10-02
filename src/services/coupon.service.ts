@@ -107,7 +107,7 @@ export const couponService = {
         }
         break;
       case "FREE_SHIPPING":
-        discountAmount = 0; // Handled separately in checkout
+        discountAmount = 0;
         break;
     }
 

@@ -46,7 +46,6 @@ export const userAddressService = {
       throw new Error("ADDRESS_NOT_FOUND");
     }
 
-    // Check ownership if userId provided
     if (userId && address.userId !== userId) {
       throw new Error("FORBIDDEN");
     }
@@ -105,7 +104,6 @@ export const userAddressService = {
       throw new Error("FORBIDDEN");
     }
 
-    // Check if address is used in orders
     const orders = await prisma.order.count({
       where: { shippingAddressId: id },
     });

@@ -11,7 +11,6 @@ export const shipmentService = {
       throw new Error("ORDER_NOT_FOUND");
     }
 
-    // Check if tracking number already exists
     const existingShipment = await prisma.shipment.findUnique({
       where: { trackingNumber: data.trackingNumber },
     });
@@ -49,7 +48,6 @@ export const shipmentService = {
       },
     });
 
-    // Update order status if shipped
     if (data.status === "IN_TRANSIT" || data.status === "OUT_FOR_DELIVERY") {
       await prisma.order.update({
         where: { id: data.orderId },
@@ -57,7 +55,6 @@ export const shipmentService = {
       });
     }
 
-    // Update order status if delivered
     if (data.status === "DELIVERED") {
       await prisma.order.update({
         where: { id: data.orderId },
@@ -189,7 +186,6 @@ export const shipmentService = {
       },
     });
 
-    // Update order status based on shipment status
     if (data.status) {
       if (data.status === "DELIVERED") {
         await prisma.order.update({

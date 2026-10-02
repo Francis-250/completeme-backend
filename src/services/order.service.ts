@@ -6,7 +6,6 @@ import { notificationService } from "./notification.service";
 
 export const orderService = {
   create: async (userId: string, data: CreateOrderData) => {
-    // Get cart items if not provided
     let items = data.items;
 
     if (!items || items.length === 0) {
@@ -22,7 +21,6 @@ export const orderService = {
       throw new Error("CART_EMPTY");
     }
 
-    // Validate variants and calculate totals
     let subtotal = 0;
     const orderItems: CreateOrderItemData[] = [];
 
@@ -32,7 +30,6 @@ export const orderService = {
         include: { product: true },
       });
 
-      // Fallback: if variantId is actually a productId
       if (!variant && item.variantId) {
         variant = await prisma.productVariant.findFirst({
           where: { productId: item.variantId },
@@ -67,7 +64,6 @@ export const orderService = {
     let discountAmount = 0;
     let couponId = data.couponId;
 
-    // Validate coupon if provided
     if (data.couponId) {
       const coupon = await prisma.coupon.findUnique({
         where: { id: data.couponId },
@@ -114,7 +110,7 @@ export const orderService = {
           }
           break;
         case "FREE_SHIPPING":
-          discountAmount = 0; // Shipping handled separately
+          discountAmount = 0; 
           break;
       }
 
