@@ -24,8 +24,11 @@ import newsletterRoutes from "./newsletter.routes";
 import dealRoutes from "./deal.routes";
 import blogRoutes from "./blog.routes";
 import contactRoutes from "./contact.routes";
+import { invalidateCacheAfterWrite } from "../middlewares/cache-invalidation.middleware";
 
 const router = Router();
+
+router.use(invalidateCacheAfterWrite);
 
 router.use("/tags", tagsRoutes);
 router.use("/brands", brandRoutes);

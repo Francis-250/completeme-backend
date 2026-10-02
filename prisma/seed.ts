@@ -1,9 +1,84 @@
 import "dotenv/config";
-import { prisma } from "../src/lib/prisma";
+import { PrismaClient } from "@prisma/client";
+import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { hashPassword } from "better-auth/crypto";
+import { Redis } from "ioredis";
+
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not defined");
+}
+
+const isNeon =
+  connectionString.includes("neon.tech") || connectionString.includes("neon");
+
+const adapter = isNeon
+  ? new PrismaNeon({ connectionString })
+  : new PrismaPg({ connectionString });
+
+const prisma = new PrismaClient({ adapter });
+const redis = process.env.REDIS_URL
+  ? new Redis(process.env.REDIS_URL, {
+      maxRetriesPerRequest: 1,
+      lazyConnect: true,
+    })
+  : null;
+
+async function clearAppCache() {
+  if (!redis) return;
+
+  const patterns = [
+    "products:*",
+    "product:*",
+    "categories:*",
+    "category:*",
+    "brands:*",
+    "brand:*",
+    "deals:*",
+    "collections:*",
+    "collection:*",
+    "tags:*",
+    "tag:*",
+    "settings:*",
+  ];
+
+  try {
+    if (redis.status === "wait" || redis.status === "end") {
+      await redis.connect();
+    }
+    let totalDeleted = 0;
+
+    for (const pattern of patterns) {
+      let cursor = "0";
+      do {
+        const [nextCursor, keys] = await redis.scan(
+          cursor,
+          "MATCH",
+          pattern,
+          "COUNT",
+          100,
+        );
+        cursor = nextCursor;
+        if (keys.length > 0) {
+          totalDeleted += await redis.del(...keys);
+        }
+      } while (cursor !== "0");
+    }
+
+    console.log(`🧽 Cleared ${totalDeleted} cached app entries.`);
+  } catch (err) {
+    console.warn(
+      "⚠️ Could not clear Redis cache after seed:",
+      err instanceof Error ? err.message : err,
+    );
+  }
+}
 
 async function main() {
   console.log("🌱 Starting database seeding for completeme...");
+  await clearAppCache();
 
   // 1. Clean up database in reverse foreign key order
   console.log("🧹 Cleaning up existing records...");
@@ -232,12 +307,12 @@ async function main() {
       id: "addr-cust1-shipping",
       userId: customerUser1.id,
       addressType: "SHIPPING",
-      addressLine1: "742 Evergreen Terrace",
-      addressLine2: "Apt 4B",
-      city: "Springfield",
-      state: "OR",
-      postalCode: "97477",
-      country: "United States",
+      addressLine1: "KG 7 Ave",
+      addressLine2: "Kacyiru",
+      city: "Kigali",
+      state: "Kigali City",
+      postalCode: "00000",
+      country: "Rwanda",
       isDefault: true,
     },
   });
@@ -247,12 +322,12 @@ async function main() {
       id: "addr-cust1-billing",
       userId: customerUser1.id,
       addressType: "BILLING",
-      addressLine1: "742 Evergreen Terrace",
-      addressLine2: "Apt 4B",
-      city: "Springfield",
-      state: "OR",
-      postalCode: "97477",
-      country: "United States",
+      addressLine1: "KG 7 Ave",
+      addressLine2: "Kacyiru",
+      city: "Kigali",
+      state: "Kigali City",
+      postalCode: "00000",
+      country: "Rwanda",
       isDefault: true,
     },
   });
@@ -262,12 +337,12 @@ async function main() {
       id: "addr-cust2-shipping",
       userId: customerUser2.id,
       addressType: "SHIPPING",
-      addressLine1: "100 Market St",
-      addressLine2: "Suite 1200",
-      city: "San Francisco",
-      state: "CA",
-      postalCode: "94105",
-      country: "United States",
+      addressLine1: "KN 3 Rd",
+      addressLine2: "Nyarugenge",
+      city: "Kigali",
+      state: "Kigali City",
+      postalCode: "00000",
+      country: "Rwanda",
       isDefault: true,
     },
   });
@@ -526,8 +601,8 @@ async function main() {
       id: "var-iphone-256-nat",
       productId: prodIphone.id,
       sku: "IP16PM-256-NAT",
-      price: 1199.0,
-      compareAtPrice: 1299.0,
+      price: 1678600.0,
+      compareAtPrice: 1818600.0,
       stockQuantity: 45,
       weight: 0.22,
       attributes: { color: "Natural Titanium", storage: "256GB" },
@@ -539,8 +614,8 @@ async function main() {
       id: "var-iphone-512-blk",
       productId: prodIphone.id,
       sku: "IP16PM-512-BLK",
-      price: 1399.0,
-      compareAtPrice: 1499.0,
+      price: 1958600.0,
+      compareAtPrice: 2098600.0,
       stockQuantity: 30,
       weight: 0.22,
       attributes: { color: "Black Titanium", storage: "512GB" },
@@ -611,8 +686,8 @@ async function main() {
       id: "var-sony-xm5-blk",
       productId: prodSonyHeadphones.id,
       sku: "SNY-XM5-BLK",
-      price: 399.99,
-      compareAtPrice: 429.99,
+      price: 559986.0,
+      compareAtPrice: 601986.0,
       stockQuantity: 65,
       weight: 0.25,
       attributes: { color: "Midnight Black", style: "Over-Ear" },
@@ -624,8 +699,8 @@ async function main() {
       id: "var-sony-xm5-slv",
       productId: prodSonyHeadphones.id,
       sku: "SNY-XM5-SLV",
-      price: 399.99,
-      compareAtPrice: 429.99,
+      price: 559986.0,
+      compareAtPrice: 601986.0,
       stockQuantity: 40,
       weight: 0.25,
       attributes: { color: "Silver White", style: "Over-Ear" },
@@ -696,8 +771,8 @@ async function main() {
       id: "var-nike-pulse-10",
       productId: prodNikeSneakers.id,
       sku: "NKE-PLS-RED-10",
-      price: 159.99,
-      compareAtPrice: 179.99,
+      price: 223986.0,
+      compareAtPrice: 251986.0,
       stockQuantity: 28,
       weight: 0.85,
       attributes: { size: "US 10", color: "Crimson Red / Black" },
@@ -709,8 +784,8 @@ async function main() {
       id: "var-nike-pulse-11",
       productId: prodNikeSneakers.id,
       sku: "NKE-PLS-RED-11",
-      price: 159.99,
-      compareAtPrice: 179.99,
+      price: 223986.0,
+      compareAtPrice: 251986.0,
       stockQuantity: 20,
       weight: 0.88,
       attributes: { size: "US 11", color: "Crimson Red / Black" },
@@ -781,8 +856,8 @@ async function main() {
       id: "var-bose-qc-blk",
       productId: prodBoseEarbuds.id,
       sku: "BSE-QCULT-BLK",
-      price: 299.0,
-      compareAtPrice: 329.0,
+      price: 418600.0,
+      compareAtPrice: 460600.0,
       stockQuantity: 50,
       weight: 0.08,
       attributes: { color: "Triple Black" },
@@ -853,8 +928,8 @@ async function main() {
       id: "var-pat-nano-m",
       productId: prodPatagonia.id,
       sku: "PAT-NANO-GRY-M",
-      price: 239.0,
-      compareAtPrice: 259.0,
+      price: 334600.0,
+      compareAtPrice: 362600.0,
       stockQuantity: 35,
       weight: 0.34,
       attributes: { size: "Medium", color: "Forge Grey" },
@@ -996,8 +1071,8 @@ async function main() {
       code: "WELCOME10",
       discountType: "PERCENTAGE",
       discountValue: 10.0,
-      minOrderAmount: 50.0,
-      maxDiscount: 100.0,
+      minOrderAmount: 70000.0,
+      maxDiscount: 140000.0,
       usageLimit: 500,
       usedCount: 1,
       startDate: new Date("2026-01-01"),
@@ -1011,9 +1086,9 @@ async function main() {
       id: "cpn-save-50",
       code: "SAVE50",
       discountType: "FIXED_AMOUNT",
-      discountValue: 50.0,
-      minOrderAmount: 300.0,
-      maxDiscount: 50.0,
+      discountValue: 70000.0,
+      minOrderAmount: 420000.0,
+      maxDiscount: 70000.0,
       usageLimit: 200,
       usedCount: 0,
       startDate: new Date("2026-01-01"),
@@ -1028,7 +1103,7 @@ async function main() {
       code: "FREESHIP",
       discountType: "FREE_SHIPPING",
       discountValue: 0.0,
-      minOrderAmount: 75.0,
+      minOrderAmount: 105000.0,
       usageLimit: 1000,
       usedCount: 0,
       startDate: new Date("2026-01-01"),
@@ -1046,10 +1121,10 @@ async function main() {
       id: "ord-2026-001",
       userId: customerUser1.id,
       couponId: couponWelcome.id,
-      totalAmount: 1129.1,
-      taxAmount: 85.0,
+      totalAmount: 1580740.0,
+      taxAmount: 119000.0,
       shippingAmount: 0.0,
-      discountAmount: 119.9,
+      discountAmount: 167860.0,
       status: "DELIVERED",
       shippingAddressId: addressCust1Shipping.id,
     },
@@ -1061,7 +1136,7 @@ async function main() {
       orderId: order1.id,
       variantId: varIphone256.id,
       quantity: 1,
-      priceAtPurchase: 1199.0,
+      priceAtPurchase: 1678600.0,
     },
   });
 
@@ -1078,9 +1153,9 @@ async function main() {
     data: {
       id: "pay-ord1-stripe",
       orderId: order1.id,
-      paymentMethod: "STRIPE_CREDIT_CARD",
-      transactionId: "ch_3Mp8xK2eZvKYlo2C1gH9281a",
-      amount: 1129.1,
+      paymentMethod: "MTN MoMo Pay",
+      transactionId: "momo-seed-2026-001",
+      amount: 1580740.0,
       status: "COMPLETED",
     },
   });
@@ -1103,9 +1178,9 @@ async function main() {
     data: {
       id: "ord-2026-002",
       userId: customerUser2.id,
-      totalAmount: 434.99,
-      taxAmount: 25.0,
-      shippingAmount: 10.0,
+      totalAmount: 608986.0,
+      taxAmount: 35000.0,
+      shippingAmount: 14000.0,
       discountAmount: 0.0,
       status: "SHIPPED",
       shippingAddressId: addressCust2.id,
@@ -1118,7 +1193,7 @@ async function main() {
       orderId: order2.id,
       variantId: varSonyBlack.id,
       quantity: 1,
-      priceAtPurchase: 399.99,
+      priceAtPurchase: 559986.0,
     },
   });
 
@@ -1126,9 +1201,9 @@ async function main() {
     data: {
       id: "pay-ord2-paypal",
       orderId: order2.id,
-      paymentMethod: "PAYPAL",
-      transactionId: "PAYID-MQ983109382103",
-      amount: 434.99,
+      paymentMethod: "Airtel Pay",
+      transactionId: "airtel-seed-2026-002",
+      amount: 608986.0,
       status: "COMPLETED",
     },
   });
@@ -1217,7 +1292,7 @@ async function main() {
         action: "ORDER_CHECKOUT",
         entity: "Order",
         entityId: order1.id,
-        newValues: { totalAmount: 1129.1, status: "DELIVERED" },
+        newValues: { totalAmount: 1580740.0, status: "DELIVERED" },
         ipAddress: "127.0.0.1",
       },
     ],
@@ -1396,11 +1471,11 @@ async function main() {
         storePhone: "+250 788 000 000",
         storeAddress: "Kigali Heights, KG 7 Ave, Kigali, Rwanda",
         logoUrl: "",
-        currency: "USD",
-        currencySymbol: "$",
+        currency: "RWF",
+        currencySymbol: "FRw",
         timezone: "Africa/Kigali",
-        freeShippingThreshold: "50",
-        flatShippingRate: "5.99",
+        freeShippingThreshold: "70000",
+        flatShippingRate: "8000",
         enableFreeShipping: true,
         enableLocalPickup: false,
         taxRate: "8",
@@ -1431,14 +1506,14 @@ async function main() {
         whatsappUrl: "https://wa.me/",
         enableTopBar: true,
         topBarText:
-          "Free shipping on orders over $50 | Use code WELCOME10 for 10% off",
+          "Free shipping on orders over FRw 70,000 | Use code WELCOME10 for 10% off",
         topBarLink: "/products",
         topBarLinkText: "Shop Now",
         enablePromoBanner: true,
         promoBadge: "Limited time offer",
         promoTitle: "Up to 30% off sound & style",
         promoDescription:
-          "Handpicked headphones, watches, and accessories at their best prices this season. Free shipping on orders over $50.",
+          "Handpicked headphones, watches, and accessories at their best prices this season. Free shipping on orders over FRw 70,000.",
         promoButtonText: "Shop the sale",
         promoButtonLink: "/deals",
         promoImageUrl: "/image/watch.webp",
@@ -1465,6 +1540,7 @@ async function main() {
   console.log("  • Customer: lucas.vance@example.com   (Role: CUSTOMER)");
   console.log("  • Customer: sophia.m@example.com      (Role: CUSTOMER)");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+  await clearAppCache();
 }
 
 main()
@@ -1474,4 +1550,7 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    if (redis) {
+      await redis.quit();
+    }
   });
