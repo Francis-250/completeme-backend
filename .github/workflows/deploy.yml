@@ -5,7 +5,7 @@ on:
     tags: ["*.*.*.RELEASE"]
 
 env:
-  IMAGE: ghcr.io/francis-250/compeleteme
+  IMAGE: ghcr.io/francis-250/compeleteme-backend
 
 jobs:
   push_image:

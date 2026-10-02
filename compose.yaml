@@ -1,7 +1,7 @@
 services:
   server:
     build: .
-    image: ghcr.io/francis-250/compeleteme:latest
+    image: ghcr.io/francis-250/compeleteme-backend:latest
     ports:
       - "5000:5000"
     env_file:

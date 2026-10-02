@@ -1,4 +1,22 @@
-FROM node:24-slim
+FROM node:24-slim AS deps
+
+WORKDIR /app
+
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+
+FROM deps AS builder
+
+WORKDIR /app
+ENV DATABASE_URL=postgresql://x:x@localhost:5432/x
+COPY . .
+RUN npm run build
+
+FROM node:24-slim AS runner
 
 ENV NODE_ENV=production
 WORKDIR /app
@@ -10,9 +28,10 @@ RUN apt-get update -y \
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
 
-COPY . .
-
-RUN DATABASE_URL="postgresql://x:x@localhost:5432/x" npx prisma generate
+COPY --from=builder --chown=node:node /app/dist ./dist
+COPY --from=builder --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=node:node /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder --chown=node:node /app/prisma ./prisma
 
 USER node
 EXPOSE 5000
@@ -22,4 +41,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
 
 LABEL org.opencontainers.image.source="https://github.com/Francis-250/completeme-backend"
 
-CMD ["node", "--import", "tsx", "src/app.ts"]
+CMD ["node", "dist/app.js"]
