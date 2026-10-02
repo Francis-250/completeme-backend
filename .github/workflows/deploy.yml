@@ -34,4 +34,3 @@ jobs:
   #           docker compose pull
   #           docker compose run --rm server npx prisma migrate deploy
   #           docker compose up -d
-  #           docker image prune -f
