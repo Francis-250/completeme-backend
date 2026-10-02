@@ -359,25 +359,34 @@ export const orderService = {
       throw new Error("FORBIDDEN");
     }
 
-    // Non-admin users can only cancel orders
-    if (!isAdmin && data.status && data.status !== "CANCELLED") {
-      throw new Error("FORBIDDEN");
-    }
-
-    // Validate status transitions
+    let targetStatus: any = undefined;
     if (data.status) {
-      const validTransitions: Record<string, string[]> = {
-        PENDING: ["PROCESSING", "CANCELLED"],
-        PROCESSING: ["SHIPPED", "CANCELLED"],
-        SHIPPED: ["DELIVERED", "RETURNED"],
-        DELIVERED: ["RETURNED"],
-        CANCELLED: [],
-        RETURNED: [],
+      const rawStatus = String(data.status).trim().toUpperCase();
+      const statusMap: Record<string, string> = {
+        PENDING: "PENDING",
+        PROCESSING: "PROCESSING",
+        PAID: "PROCESSING",
+        SHIPPED: "SHIPPED",
+        DELIVERED: "DELIVERED",
+        CANCELLED: "CANCELLED",
+        CANCELED: "CANCELLED",
+        RETURNED: "RETURNED",
+        REFUNDED: "RETURNED",
       };
 
-      const allowed = validTransitions[existingOrder.status] || [];
-      if (!allowed.includes(data.status)) {
+      targetStatus = statusMap[rawStatus];
+      if (!targetStatus) {
         throw new Error("INVALID_STATUS_TRANSITION");
+      }
+
+      // Non-admin users can only cancel orders in PENDING or PROCESSING status
+      if (!isAdmin) {
+        if (targetStatus !== "CANCELLED") {
+          throw new Error("FORBIDDEN");
+        }
+        if (existingOrder.status !== "PENDING" && existingOrder.status !== "PROCESSING") {
+          throw new Error("INVALID_STATUS_TRANSITION");
+        }
       }
     }
 
@@ -394,7 +403,7 @@ export const orderService = {
     const order = await prisma.order.update({
       where: { id },
       data: {
-        ...(data.status !== undefined && { status: data.status }),
+        ...(targetStatus !== undefined && { status: targetStatus }),
         ...(data.shippingAddressId !== undefined && { shippingAddressId: data.shippingAddressId }),
       },
       include: {

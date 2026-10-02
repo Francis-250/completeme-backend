@@ -112,6 +112,13 @@ export const orderController = {
       const role = (req.user?.role || "").toUpperCase();
       const isAdmin = role === "ADMIN";
 
+      if (!userId && !isAdmin) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized. Please log in to view orders.",
+        });
+      }
+
       const filters: Record<string, unknown> = {};
 
       if (status && status !== "all") {
@@ -120,8 +127,8 @@ export const orderController = {
       if (page) filters.page = parseInt(page as string);
       if (limit) filters.limit = parseInt(limit as string);
 
-      // Non-admin users only see their own orders if user ID is present
-      if (!isAdmin && userId) {
+      // Non-admin users only see their own orders
+      if (!isAdmin) {
         filters.userId = userId;
       }
 

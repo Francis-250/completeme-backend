@@ -13,7 +13,7 @@ export const requireAuth = async (
       headers: fromNodeHeaders(req.headers),
     });
 
-    if (!session) {
+    if (!session?.user) {
       if (process.env.NODE_ENV !== "production") {
         const adminUser = await prisma.user.findFirst({
           where: { role: "ADMIN" },
@@ -65,29 +65,14 @@ export const optionalAuth = async (
       headers: fromNodeHeaders(req.headers),
     });
 
-    if (session) {
+    if (session?.user) {
       req.user = session.user;
       req.session = session.session;
-    } else if (process.env.NODE_ENV !== "production") {
-      const adminUser = await prisma.user.findFirst({
-        where: { role: "ADMIN" },
-      });
-      if (adminUser) {
-        req.user = adminUser as any;
-      }
     }
-  } catch {
-    if (process.env.NODE_ENV !== "production") {
-      try {
-        const adminUser = await prisma.user.findFirst({
-          where: { role: "ADMIN" },
-        });
-        if (adminUser) {
-          req.user = adminUser as any;
-        }
-      } catch {}
-    }
+  } catch (err) {
+    // Ignored in optionalAuth
   }
+
   next();
 };
 
