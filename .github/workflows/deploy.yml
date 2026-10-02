@@ -30,7 +30,7 @@ jobs:
   #         key: ${{ secrets.VPS_SSH_KEY }}
   #         script_stop: true
   #         script: |
-  #           cd ~/app
+  #           cd ~/completeme
   #           docker compose pull
   #           docker compose run --rm server npx prisma migrate deploy
   #           docker compose up -d
